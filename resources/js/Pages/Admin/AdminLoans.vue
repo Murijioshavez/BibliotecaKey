@@ -31,35 +31,59 @@ function approveLoan(id) {
 </script>
 
 <template>
-    <Head title="Reservas pendientes"/>
-    <AuthenticatedLayout>
-            <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                Reservas por aprobar
-            </h2>
-        </template>
-
-        <div>
-            <table class="min-w-full text-left border">
-                <thead>
-                    <tr class="bg-gray-200">
-                        <th class="p-2">Libro</th>
-                        <th class="p-2">Usuario</th>
-                        <th class="p-2">Acción</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="loan in loans" :key="loan.id" class="border-t">
-                        <td class="p-2">{{ loan.book.title }}</td>
-                        <td class="p-2">{{ loan.user.name }}</td>
-                        <td class="p-2">
-                            <button @click="approveLoan(loan.id)" class="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700">
-                                Aprobar
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </AuthenticatedLayout>
+  <Head title="Reservas pendientes" />
+  <AuthenticatedLayout>
+    <template #header>
+      <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+        Reservas por aprobar
+      </h2>
     </template>
+
+    <div class="max-w-5xl mt-10 mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-100 dark:bg-gray-700">
+            <tr>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
+              >
+                Libro
+              </th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
+              >
+                Usuario
+              </th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-center text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
+              >
+                Acción
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tr v-for="loan in loans" :key="loan.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+              <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-200">
+                {{ loan.book.title }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-200">
+                {{ loan.user.name }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-center">
+                <button
+                  @click="approveLoan(loan.id)"
+                  class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition"
+                >
+                  Aprobar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </AuthenticatedLayout>
+</template>

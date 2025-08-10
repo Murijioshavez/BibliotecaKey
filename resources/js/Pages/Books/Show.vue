@@ -1,97 +1,89 @@
 <script setup>
-import { usePage, Link, router } from '@inertiajs/vue3';
-import { reactive } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
-// Obtenemos el libro desde las props de Inertia
+
 const { props } = usePage();
 const book = props.book;
-console.log(book);
+const user = props.auth.user;
 
-const reservar = reactive({
-    book_id: book.id,
-})
-
-function submit (){
-    router.post(`/books/${book.id}/reserve`, reservar, {
+function eliminarLibro() {
+  Swal.fire({
+    title: '¿Estás seguro de eliminar este libro?',
+    text: 'Esta acción es irreversible.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+  }).then(result => {
+    if (result.isConfirmed) {
+      router.delete(`/books/admin/${book.id}`, {
         onSuccess: () => {
-            Swal.fire({
-                title: '¡Reserva exitosa!',
-                text: 'El libro ha sido reservado con éxito',
-                icon: 'success',
-                confirmButtonColor: '#206CE6',
-            });
-            book.available_copies = book.available_copies - 1
+          Swal.fire('¡Eliminado!', 'El libro fue eliminado.', 'success');
+          router.visit('/books/admin');
         },
-        onError: (errors) => {
-            Swal.fire({
-                title: 'Error',
-                text: Object.values(errors)[0],
-                icon: 'error',
-                confirmButtonColor: '#206CE6',
-            })
+        onError: () => {
+          Swal.fire('Error', 'No se pudo eliminar el libro.', 'error');
         }
-    })
+      });
+    }
+  });
 }
 </script>
 
 <template>
+  <Head :title="book.title" />
   <AuthenticatedLayout>
-    <div class="p-6 max-w-5xl mx-auto">
-      <!-- Botón volver -->
-      <div class="mb-6">
-        <Link
-          href="/books"
-          class="inline-flex items-center px-3 py-2 rounded bg-gray-200 hover:bg-gray-300
-                 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 transition"
-        >
-          ← Volver al catálogo
-        </Link>
-      </div>
+    <template #header>
+      <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+        {{ book.title }}
+      </h2>
+    </template>
 
-      <!-- Card principal -->
-      <div
-        class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700
-               overflow-hidden flex flex-col md:flex-row"
-      >
-        <!-- Portada -->
-        <div class="md:w-1/3">
-          <img
-            :src="book.cover_path"
-            alt="Portada del libro"
-            class="w-full h-80 object-cover md:h-full"
-          />
-        </div>
+    <div class="max-w-4xl mt-10 mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow space-y-8">
+      <div class="flex flex-col md:flex-row gap-8">
+        <img
+          :src="book.cover_path"
+          alt="Portada"
+          class="w-full md:w-64 h-96 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
+          loading="lazy"
+        />
 
-        <!-- Información del libro -->
-        <div class="p-6 flex-1 flex flex-col">
-          <h1 class="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
-            {{ book.title }}
-          </h1>
-          <p class="text-lg text-gray-700 dark:text-gray-300 mb-4">
-            {{ book.author }}
-          </p>
+        <div class="flex flex-col flex-grow text-gray-900 dark:text-gray-100">
+          <h1 class="text-3xl font-bold mb-2">{{ book.title }}</h1>
+          <p class="text-lg italic mb-4">por {{ book.author }}</p>
 
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            Categoría: {{ book.category }}<br>
-            Copias disponibles: {{ book.available_copies }}<br>
-            ISBN: {{ book.isbn }}
-          </p>
+          <p class="mb-4 whitespace-pre-wrap">{{ book.description }}</p>
 
-          <p class="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-            {{ book.description || 'Sin descripción disponible.' }}
-          </p>
+          <p class="mb-2"><strong>ISBN:</strong> {{ book.isbn }}</p>
+          <p class="mb-2"><strong>Copias disponibles:</strong> {{ book.available_copies }}</p>
+          <p class="mb-2"><strong>Categoría:</strong> {{ book.category }}</p>
 
-          <!-- Botón de acción -->
-          <div class="mt-auto">
-            <form @submit.prevent="submit">
+          <div class="mt-auto flex gap-4 pt-6">
+            <template v-if="user.role === 'admin'">
+              <router-link
+                :href="`/books/admin/${book.id}/edit`"
+                class="px-5 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded shadow transition"
+              >
+                Editar
+              </router-link>
 
-                <button type="submit"
-                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-                >
-                Reservar
-            </button>
-        </form>
+              <button
+                @click="eliminarLibro"
+                class="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded shadow transition"
+              >
+                Eliminar
+              </button>
+            </template>
+
+            <template v-else>
+              <button
+                disabled
+                class="px-5 py-2 bg-gray-400 text-gray-700 rounded cursor-not-allowed"
+              >
+                Reservar (pendiente)
+              </button>
+            </template>
           </div>
         </div>
       </div>
