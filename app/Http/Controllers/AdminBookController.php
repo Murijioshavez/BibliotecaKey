@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 
 class AdminBookController extends Controller
@@ -38,5 +41,48 @@ class AdminBookController extends Controller
 
         // Redirigir al listado con mensaje éxito
         return redirect()->route('books.index')->with('success', 'Libro creado correctamente');
+    }
+
+    public function editBook(Book $book)
+    {
+        return Inertia::render('Books/Admin/Edit', ['book' => $book]);
+    }
+
+public function updateBook(Request $request, Book $book): RedirectResponse
+{
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'author' => 'required|string|max:255',
+        'isbn' => 'required|string|max:20|unique:books,isbn,' . $book->id,
+        'available_copies' => 'required|integer|min:0',
+        'category' => 'required|string|max:100',
+        'description' => 'nullable|string',
+        'cover' => 'nullable|image|max:2048',
+    ]);
+
+    // Si hay nueva portada
+    if ($request->hasFile('cover')) {
+        if ($book->cover_path && Storage::disk('public')->exists(str_replace('/storage/', '', $book->cover_path))) {
+            Storage::disk('public')->delete(str_replace('/storage/', '', $book->cover_path));
+        }
+        $path = $request->file('cover')->store('covers', 'public');
+        $validated['cover_path'] = '/storage/' . $path;
+    }
+
+    $book->fill($validated);
+
+    if ($book->isDirty()) {
+        $book->save();
+        return redirect()->route('books.index')->with('success', 'Libro actualizado correctamente.');
+    }
+
+    return redirect()->route('books.index')->with('info', 'No se detectaron cambios en el libro.');
+}
+
+    public function destroyBook(Book $book): RedirectResponse
+    {
+        $book->delete();
+        
+        return redirect()->route('books.index')->with('success', 'El libro se ha eliminado exitosamente');
     }
 }

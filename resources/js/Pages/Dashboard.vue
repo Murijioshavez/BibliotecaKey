@@ -1,6 +1,9 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
+import useFlashMessages from '@/Composables/useFlashMessages.js'
+
+useFlashMessages()
 
 const { props } = usePage();
 </script>
@@ -52,7 +55,7 @@ const { props } = usePage();
                             </thead>
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                 <tr v-for="loan in props.historial" :key="loan.id"
-                                    class="bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-white">
+                                    class="bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors dark:text-white">
                                     <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 truncate max-w-xs">
                                         {{ loan.book.title }}
                                     </td>

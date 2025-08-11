@@ -1,20 +1,21 @@
 <script setup>
 import { reactive, ref } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { usePage } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
 
 const { props } = usePage();
 const errors = ref({});
-const form = reactive({
+
+// Usamos useForm para manejar PATCH con Inertia
+const form = useForm({
   title: props.book.title || '',
   author: props.book.author || '',
   isbn: props.book.isbn || '',
   available_copies: props.book.available_copies || 1,
   category: props.book.category || '',
   description: props.book.description || '',
-  cover: null, // Para subir nueva portada
+  cover: null, // Para nueva portada
 });
 
 function handleFileChange(e) {
@@ -22,19 +23,31 @@ function handleFileChange(e) {
 }
 
 function submit() {
-  router.post(`/books/admin/${props.book.id}`, form, {
+  form.patch(route('books.admin.update', props.book.id), {
+    preserveScroll: true,
     onSuccess: () => {
       Swal.fire('¡Actualizado!', 'El libro fue actualizado correctamente.', 'success');
     },
     onError: (err) => {
-      errors.value = err.props?.errors || {};
+      errors.value = err;
       Swal.fire('Error', 'No se pudo actualizar el libro.', 'error');
     }
   });
 }
 
 function cancelar() {
-  router.get('/books/admin');
+  Swal.fire({
+    title: '¿Cancelar cambios?',
+    text: 'Los cambios no guardados se perderán',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, cancelar',
+    cancelButtonText: 'Seguir editando'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.history.back();
+    }
+  });
 }
 </script>
 
@@ -46,55 +59,56 @@ function cancelar() {
       </h2>
     </template>
 
-    <div class="max-w-3xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
-      <form @submit.prevent="submit" enctype="multipart/form-data" class="space-y-5">
+    <div class="max-w-3xl mt-10 mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
+      <form @submit.prevent="submit" enctype="multipart/form-data">
+
         <div>
-          <label for="title" class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">Título</label>
-          <input v-model="form.title" id="title" type="text" class="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-gray-100" />
-          <p v-if="errors.title" class="text-red-600 text-sm mt-1">{{ errors.title[0] }}</p>
+          <label for="title" class="block font-semibold mb-1">Título</label>
+          <input v-model="form.title" id="title" type="text" class="input-text" />
+          <p v-if="errors.title" class="error-text">{{ errors.title[0] }}</p>
         </div>
 
         <div>
-          <label for="author" class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">Autor</label>
-          <input v-model="form.author" id="author" type="text" class="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-gray-100" />
-          <p v-if="errors.author" class="text-red-600 text-sm mt-1">{{ errors.author[0] }}</p>
+          <label for="author" class="block font-semibold mb-1">Autor</label>
+          <input v-model="form.author" id="author" type="text" class="input-text" />
+          <p v-if="errors.author" class="error-text">{{ errors.author[0] }}</p>
         </div>
 
         <div>
-          <label for="isbn" class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">ISBN</label>
-          <input v-model="form.isbn" id="isbn" type="text" class="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-gray-100" />
-          <p v-if="errors.isbn" class="text-red-600 text-sm mt-1">{{ errors.isbn[0] }}</p>
+          <label for="isbn" class="block font-semibold mb-1">ISBN</label>
+          <input v-model="form.isbn" id="isbn" type="text" class="input-text" />
+          <p v-if="errors.isbn" class="error-text">{{ errors.isbn[0] }}</p>
         </div>
 
         <div>
-          <label for="available_copies" class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">Copias Disponibles</label>
-          <input v-model.number="form.available_copies" id="available_copies" type="number" min="0" class="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-gray-100" />
-          <p v-if="errors.available_copies" class="text-red-600 text-sm mt-1">{{ errors.available_copies[0] }}</p>
+          <label for="available_copies" class="block font-semibold mb-1">Copias Disponibles</label>
+          <input v-model.number="form.available_copies" id="available_copies" type="number" min="0" class="input-text" />
+          <p v-if="errors.available_copies" class="error-text">{{ errors.available_copies[0] }}</p>
         </div>
 
         <div>
-          <label for="category" class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">Categoría</label>
-          <input v-model="form.category" id="category" type="text" class="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-gray-100" />
-          <p v-if="errors.category" class="text-red-600 text-sm mt-1">{{ errors.category[0] }}</p>
+          <label for="category" class="block font-semibold mb-1">Categoría</label>
+          <input v-model="form.category" id="category" type="text" class="input-text" />
+          <p v-if="errors.category" class="error-text">{{ errors.category[0] }}</p>
         </div>
 
         <div>
-          <label for="description" class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">Descripción</label>
-          <textarea v-model="form.description" id="description" rows="4" class="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-gray-100"></textarea>
-          <p v-if="errors.description" class="text-red-600 text-sm mt-1">{{ errors.description[0] }}</p>
+          <label for="description" class="block font-semibold mb-1">Descripción</label>
+          <textarea v-model="form.description" id="description" rows="4" class="input-text"></textarea>
+          <p v-if="errors.description" class="error-text">{{ errors.description[0] }}</p>
         </div>
 
         <div>
-          <label for="cover" class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">Portada (opcional)</label>
-          <input id="cover" type="file" @change="handleFileChange" accept="image/*" class="text-gray-900 dark:text-gray-100" />
-          <p v-if="errors.cover" class="text-red-600 text-sm mt-1">{{ errors.cover[0] }}</p>
+          <label for="cover" class="block font-semibold mb-1">Portada (opcional)</label>
+          <input id="cover" type="file" @change="handleFileChange" accept="image/*" />
+          <p v-if="errors.cover" class="error-text">{{ errors.cover[0] }}</p>
         </div>
 
         <div class="flex gap-4 mt-6 justify-end">
-          <button type="button" @click="cancelar" class="px-4 py-2 bg-gray-400 hover:bg-gray-500 text-gray-900 dark:text-gray-100 rounded transition">
+          <button type="button" @click="cancelar" class="btn-cancel">
             Cancelar
           </button>
-          <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition">
+          <button type="submit" class="btn-primary" :disabled="form.processing">
             Actualizar
           </button>
         </div>
@@ -102,3 +116,28 @@ function cancelar() {
     </div>
   </AuthenticatedLayout>
 </template>
+
+<style scoped>
+.input-text {
+  width: 100%;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+}
+.error-text {
+  color: red;
+  font-size: 0.85rem;
+}
+.btn-primary {
+  background-color: #2563eb;
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+}
+.btn-cancel {
+  background-color: #9ca3af;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+}
+</style>

@@ -37,6 +37,7 @@ Route::middleware('auth')->group(function () {
 //Aprobaciones de prestamos de libros
 Route::middleware('admin')->group(function() {
     Route::put('/loans/{loan}/approve', [LoanController::class, 'approve'])->name('loans.approve');
+    Route::delete('/loans/{loan}/reject', [LoanController::class, 'reject'])->name('loans.reject');
     Route::get('/admin/loans', [LoanController::class, 'adminLoans'])->name('admin.loans');
 
 });
@@ -44,8 +45,15 @@ Route::middleware('admin')->group(function() {
 
 //crear nuevos libros
 Route::middleware(['admin'])->group(function () {
+    //Rutas para crear libros
     Route::get('/books/admin/create', [AdminBookController::class, 'create'])->name('books.admin.create');
     Route::post('/books/admin', [AdminBookController::class, 'store'])->name('books.admin.store');
+
+    //Rutas para actualizar informacion o eliminar libros
+    Route::get('/books/admin/{book}/edit', [AdminBookController::class, 'editBook']);
+    Route::patch('/books/admin/{book}/edit', [AdminBookController::class, 'updateBook'])->name('books.admin.update');
+    Route::delete('/books/admin/{book}', [AdminBookController::class, 'destroyBook'])->name('books.admin.destroy');
+
 });
 
 Route::middleware(['auth'])->group(function () {

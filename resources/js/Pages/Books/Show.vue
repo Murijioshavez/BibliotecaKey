@@ -2,6 +2,9 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
+import useFlashMessages from '@/Composables/useFlashMessages.js';
+
+useFlashMessages(); // Esto se encarga de mostrar SweetAlert al recibir flash del backend
 
 const { props } = usePage();
 const book = props.book;
@@ -17,19 +20,27 @@ function eliminarLibro() {
     cancelButtonText: 'Cancelar',
   }).then(result => {
     if (result.isConfirmed) {
-      router.delete(`/books/admin/${book.id}`, {
-        onSuccess: () => {
-          Swal.fire('¡Eliminado!', 'El libro fue eliminado.', 'success');
-          router.visit('/books/admin');
-        },
-        onError: () => {
-          Swal.fire('Error', 'No se pudo eliminar el libro.', 'error');
-        }
-      });
+      router.delete(route('books.admin.destroy', book.id));
+    }
+  });
+}
+
+function reservarLibro() {
+  Swal.fire({
+    title: '¿Reservar este libro?',
+    text: 'Confirma si deseas realizar la reserva.',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, reservar',
+    cancelButtonText: 'Cancelar',
+  }).then(result => {
+    if (result.isConfirmed) {
+      router.post(route('books.reserve', book.id));
     }
   });
 }
 </script>
+
 
 <template>
   <Head :title="book.title" />
@@ -60,14 +71,14 @@ function eliminarLibro() {
           <p class="mb-2"><strong>Categoría:</strong> {{ book.category }}</p>
 
           <div class="mt-auto flex gap-4 pt-6">
+            <!-- Admin: Editar / Eliminar -->
             <template v-if="user.role === 'admin'">
-              <router-link
+              <a
                 :href="`/books/admin/${book.id}/edit`"
                 class="px-5 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded shadow transition"
               >
                 Editar
-              </router-link>
-
+              </a>
               <button
                 @click="eliminarLibro"
                 class="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded shadow transition"
@@ -76,12 +87,13 @@ function eliminarLibro() {
               </button>
             </template>
 
+            <!-- Usuario normal: Reservar -->
             <template v-else>
               <button
-                disabled
-                class="px-5 py-2 bg-gray-400 text-gray-700 rounded cursor-not-allowed"
+                @click="reservarLibro"
+                class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow transition"
               >
-                Reservar (pendiente)
+                Reservar
               </button>
             </template>
           </div>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Book;
 use App\Models\Loan;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -15,9 +16,7 @@ class LoanController extends Controller
 
         //validamos que hayan copias disponibles
         if ($book->available_copies < 1) {
-            return response()->json([
-                'message' => 'No hay copias disponibles'
-            ], 422);
+            return redirect()->back()->with('error', 'No hay copias disponibles');
 
         }
         //Vereficamos si el usuario no tiene ya una reserva activa
@@ -27,9 +26,7 @@ class LoanController extends Controller
             ->first();
 
         if ($existingLoan) {
-            return response()->json([
-                'message' => 'Ya tienes una reserva activa'
-            ], 422);
+            return redirect()->back()->with('error', 'Ya tienes una reserva activa para este libro');
         }
         //Crear la reserva
         Loan::create([
@@ -40,13 +37,13 @@ class LoanController extends Controller
 
         //reducimos las copias disponibles
         $book->decrement('available_copies');
-        return back()->with('success', 'Libro reservado exitosamente');
+        return redirect()->route('books.index')->with('success', 'Libro reservado exitosamente');
     }
 
     public function approve(Loan $loan)
     {
         if ($loan->status !== 'reservado') {
-            return response()->json(['error' => 'Este préstamo no se puede aprobar.'], 400);
+            return redirect()->back()->with('error', 'El prestamo no puede aprobarse');
         }
 
         $loan->update([
@@ -54,7 +51,18 @@ class LoanController extends Controller
             'fecha_prestamo' => now(),
             'fecha_vencimiento' => now()->addDays(7),
         ]);
+        return redirect()->back()->with('success', 'El prestamo fue aprobado');
 
+    }
+    public function reject(Loan $loan, Book $book)
+    {
+        if ($loan->status !== 'reservado') {
+            return redirect()->back()->with('error', 'El préstamo no puede rechazarse');
+        }
+
+        $loan->delete();
+        $book->increment('available_copies');
+        return redirect()->back()->with('error', 'El prestamo fue rechazado');
     }
 
     public function adminLoans()

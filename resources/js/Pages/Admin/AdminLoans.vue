@@ -1,8 +1,9 @@
 <script setup>
-import { ref } from 'vue'
 import { router, Head } from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import Swal from 'sweetalert2'
+
+
 
 const props = defineProps({
   loans: Array
@@ -28,6 +29,28 @@ function approveLoan(id) {
     }
   })
 }
+
+function rejectLoan(id) {
+  Swal.fire({
+    title: '¿Rechazar préstamo?',
+    text: 'Esta acción eliminará la reserva.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, rechazar',
+    cancelButtonText: 'Cancelar'
+  }).then(result => {
+    if (result.isConfirmed) {
+      router.delete(`/loans/${id}/reject`, {
+        onSuccess: () => {
+          Swal.fire('Rechazado', 'El préstamo fue rechazado y eliminado.', 'success')
+        },
+        onError: () => {
+          Swal.fire('Error', 'No se pudo rechazar el préstamo.', 'error')
+        }
+      })
+    }
+  })
+}
 </script>
 
 <template>
@@ -44,22 +67,13 @@ function approveLoan(id) {
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead class="bg-gray-100 dark:bg-gray-700">
             <tr>
-              <th
-                scope="col"
-                class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
-              >
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                 Libro
               </th>
-              <th
-                scope="col"
-                class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
-              >
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                 Usuario
               </th>
-              <th
-                scope="col"
-                class="px-6 py-3 text-center text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
-              >
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                 Acción
               </th>
             </tr>
@@ -72,12 +86,18 @@ function approveLoan(id) {
               <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-200">
                 {{ loan.user.name }}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-center">
+              <td class="px-6 py-4 whitespace-nowrap text-center flex justify-center gap-3">
                 <button
                   @click="approveLoan(loan.id)"
-                  class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition"
+                  class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
                 >
                   Aprobar
+                </button>
+                <button
+                  @click="rejectLoan(loan.id)"
+                  class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+                >
+                  Rechazar
                 </button>
               </td>
             </tr>

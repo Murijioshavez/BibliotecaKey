@@ -1,6 +1,10 @@
 <script setup>
 import { usePage, Head } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import useFlashMessages from '@/Composables/useFlashMessages.js';
+
+useFlashMessages(); // Esto se encarga de mostrar SweetAlert al recibir flash del backend
+
 
 const { props } = usePage();
 </script>
@@ -29,7 +33,7 @@ const { props } = usePage();
           {{ letter }}
         </h2>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 capitalize">
           <div
             v-for="book in books"
             :key="book.id"
@@ -53,8 +57,8 @@ const { props } = usePage();
             </p>
 
             <p class="text-xs text-gray-500 dark:text-gray-400 mb-4 leading-relaxed select-none">
-              <span class="block">📚 Copias disponibles: {{ book.available_copies }}</span>
-              <span class="block">🏷️ Categoría: {{ book.category }}</span>
+              <span class="block"> Copias disponibles: {{ book.available_copies }}</span>
+              <span class="block"> Categoría: {{ book.category }}</span>
             </p>
 
             <a
