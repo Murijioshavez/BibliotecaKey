@@ -2,11 +2,6 @@
 import { ref } from 'vue'
 
 // Simulación de libros
-const books = ref([
-  { id: 1, title: 'El Principito', author: 'Antoine de Saint-Exupéry', year: 1943 },
-  { id: 2, title: 'Cien Años de Soledad', author: 'Gabriel García Márquez', year: 1967 },
-  { id: 3, title: 'Don Quijote de la Mancha', author: 'Miguel de Cervantes', year: 1605 },
-])
 
 const currentPage = ref(1)
 const totalPages = ref(3)

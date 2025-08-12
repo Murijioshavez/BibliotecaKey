@@ -54,6 +54,13 @@ Route::middleware(['admin'])->group(function () {
     Route::patch('/books/admin/{book}/edit', [AdminBookController::class, 'updateBook'])->name('books.admin.update');
     Route::delete('/books/admin/{book}', [AdminBookController::class, 'destroyBook'])->name('books.admin.destroy');
 
+    //Rutas para marcar libros como entregados
+    Route::get('/admin/returns', [AdminBookController::class, 'returnsView'])->name('admin.returns');
+    Route::put('/admin/returns/{loan}/return', [AdminBookController::class, 'markAsReturned'])->name('admin.returns.mark');
+
+    //Ruta para ver el historial de todos los prestamos
+     Route::get('/admin/loans/history', [AdminBookController::class, 'history'])->name('admin.loans.history');
+
 });
 
 Route::middleware(['auth'])->group(function () {

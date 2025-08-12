@@ -46,6 +46,12 @@ console.log(props);
                 <NavLink :href="route('books.admin.create')" :active="route().current('books.admin.create')"
                   >Nuevo Libro</NavLink
                 >
+                <NavLink :href="route('admin.returns')" :active="route().current('admin.returns')"
+                >Devoluciones</NavLink
+                >
+                <NavLink :href="route('admin.loans.history')" :active="route().current('admin.loans.history')"
+                >Historial</NavLink
+                >
               </div>
               <div
                 v-else

@@ -14,7 +14,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
         User::create([
             'name' => 'Admin biblioteca',
             'email' => 'maria.aparicio@keyinstitute.edu.sv',
@@ -26,9 +25,11 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+        User::factory(100)->create();
 
         $this->call([
-            BookSeeder::class
+            BookSeeder::class,
+            LoanSeeder::class
         ]);
     }
 }

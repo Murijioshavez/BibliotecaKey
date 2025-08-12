@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Models\Loan;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -82,7 +83,38 @@ public function updateBook(Request $request, Book $book): RedirectResponse
     public function destroyBook(Book $book): RedirectResponse
     {
         $book->delete();
-        
+
         return redirect()->route('books.index')->with('success', 'El libro se ha eliminado exitosamente');
     }
+
+    public function returnsView()
+{
+    // Cargar solo préstamos aprobados y no devueltos
+    $loans = Loan::with('book', 'user')
+        ->whereIn('status', ['prestado', 'vencido'])
+        ->whereNull('returned_at')
+        ->get();
+
+    return Inertia::render('Admin/Returns', [
+        'loans' => $loans
+    ]);
+}
+
+public function markAsReturned(Loan $loan)
+{
+    $loan->update([
+        'status' => 'devuelto',
+        'returned_at' => now()
+    ]);
+
+    return redirect()->route('admin.returns')->with('success', 'Préstamo marcado como devuelto.');
+}
+public function history()
+{
+    $loans = Loan::with('book', 'user')->orderBy('created_at', 'desc')->paginate(15);
+    return Inertia::render('Admin/History', [
+        'loans' => $loans
+    ]);
+}
+
 }
