@@ -33,4 +33,11 @@ class BookController extends Controller
     {
         return Inertia::render('Books/Show', ['book' => $book]);
     }
+    public function categories()
+{
+    // Solo nombres únicos de categoría
+    $categories = Book::select('category')->distinct()->pluck('category');
+    return response()->json($categories);
+}
+
 }
