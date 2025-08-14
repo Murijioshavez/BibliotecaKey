@@ -59,7 +59,7 @@ function selectCategory(cat) {
             @click="selectCategory(cat)"
             :class="[
               'cursor-pointer px-3 py-1 rounded select-none',
-              selectedCategory === cat ? 'bg-blue-600 text-white' : 'hover:bg-gray-200 dark:hover:bg-gray-700'
+              selectedCategory === cat ? 'bg-blue-600 text-white' : 'hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-white'
             ]"
           >
             {{ cat }}

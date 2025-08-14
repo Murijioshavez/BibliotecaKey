@@ -52,7 +52,7 @@ function goToPage(url) {
             <tr
               v-for="loan in props.loans.data"
               :key="loan.id"
-              class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-800 dark:even:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors cursor-pointer"
+              class="odd:bg-white even:bg-gray-50 dark:text-white    dark:odd:bg-gray-800 dark:even:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors cursor-pointer"
               title="Detalles del préstamo"
             >
               <td class="border-b border-gray-300 dark:border-gray-600 p-3 truncate max-w-xs">

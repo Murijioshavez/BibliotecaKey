@@ -74,7 +74,7 @@ function markReturned(loanId) {
             <tr
               v-for="loan in loans"
               :key="loan.id"
-              class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-800 dark:even:bg-gray-700 hover:bg-green-50 dark:hover:bg-green-900 transition-colors"
+              class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-800 dark:text-white dark:even:bg-gray-700 hover:bg-green-50 dark:hover:bg-green-900 transition-colors"
               title="Marcar préstamo como devuelto"
             >
               <td class="border-b border-gray-300 dark:border-gray-600 p-3 truncate max-w-xs">
