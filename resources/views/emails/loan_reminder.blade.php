@@ -2,9 +2,10 @@
 # Hola {{ $loan->user->name }}
 
 Este es un recordatorio de que tu préstamo **{{ $loan->book->title }}**
-vence mañana ({{ $loan->fecha_vencimiento->format('d/m/Y') }}).
+vence mañana ({{ \Carbon\Carbon::parse($loan->fecha_vencimiento)->format('d/m/Y') }}
+).
 
-<x-mail::button :url="route('loans.show', $loan)">
+<x-mail::button :url="route('dashboard')">
 Ver préstamo
 </x-mail::button>
 

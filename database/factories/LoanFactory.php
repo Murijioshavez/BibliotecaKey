@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Carbon\Carbon;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Loan>
@@ -20,8 +21,8 @@ class LoanFactory extends Factory
             'user_id' => $this->faker->numberBetween(1, 100),
             'book_id' => $this->faker->numberBetween(1, 100),
             'status' => $this->faker->randomElement(['vencido', 'prestado', 'reservado']),
-            'fecha_prestamo' => $this->faker->date(),
-            'fecha_vencimiento' => $this->faker->date(),
+            'fecha_prestamo' => Carbon::today(),
+            'fecha_vencimiento' => Carbon::tomorrow(),
         ];
     }
 }

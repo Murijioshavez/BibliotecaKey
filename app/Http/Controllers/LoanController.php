@@ -49,7 +49,7 @@ class LoanController extends Controller
         $loan->update([
             'status' => 'prestado',
             'fecha_prestamo' => now(),
-            'fecha_vencimiento' => now()->addDays(7),
+            'fecha_vencimiento' => now()->addDays(1),
         ]);
         return redirect()->back()->with('success', 'El prestamo fue aprobado');
 
