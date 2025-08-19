@@ -24,22 +24,6 @@ class LoanReminderMail extends Mailable
         $this->type = $type;
     }
 
-
-    public function build(){
-        $subject = $this->type === 'soon'
-        ? 'Tu préstamo está a punto de vencer'
-        : 'Tu préstamo ha vencido';
-
-        $body = $this->type === 'soon'
-        ? "Hola {$this->loan->user->name}\n\nTu préstamo del libro '{$this->loan->book->title}' vence el {$this->loan->fecha_vencimiento->format('d/m/Y')}"
-        : "Hola {$this->loan->user->name}\n\nTu préstamo del libro '{$this->loan->book->title}' ha vencido el {$this->loan->fecha_vencimiento->format('d/m/Y')}";
-
-
-        return $this->subject($subject)
-        ->bcc('maria.aparicio@keyinstitute.edu.sv')
-        ->text('emails.loan_reminder', ['body' => $body]);
-    }
-
     /**
      * Get the message envelope.
      */
@@ -49,6 +33,11 @@ class LoanReminderMail extends Mailable
             subject: 'Recordatorio de vencimiento del prestamo',
         );
     }
+    public function build()
+    {
+        return $this->subject('Recordatorio: tu préstamo vence mañana')
+            ->markdown('emails.loan_reminder', ['loan' => $this->loan]);
+    }
 
     /**
      * Get the message content definition.
@@ -56,7 +45,12 @@ class LoanReminderMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'emails.loan_reminder',
+            with: [
+                'loan' => $this->loan,
+                'type' => $this->type,
+                'user' => $this->loan->user,
+            ],
         );
     }
 

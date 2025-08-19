@@ -12,3 +12,9 @@ use App\Console\Commands\ExpirationReminder;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+Schedule::command('loans:send-reminders')
+    ->dailyAt('08:00')
+    ->timezone('America/El_Salvador')
+    ->withoutOverlapping()
+    ->onOneServer();

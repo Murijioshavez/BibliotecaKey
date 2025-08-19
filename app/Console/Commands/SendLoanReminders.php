@@ -31,19 +31,27 @@ class SendLoanReminders extends Command
     public function handle()
     {
         $today = Carbon::today();
+        $tomorrow = Carbon::tomorrow();
 
-        //Prestamos que vencen maniana
+        // prestamos que vencen mañana y aún no devueltos
         $soonLoans = Loan::with('user', 'book')
-        ->whereDate('fecha_vencimiento', $today->copy()->addDay())
-        ->whereNull('returned_at')
-        ->get();
+            ->whereDate('fecha_vencimiento', $tomorrow)
+            ->whereNull('returned_at')
+            ->whereNull('reminder_sent_at') // <- evita duplicados
+            ->get();
 
         foreach ($soonLoans as $loan) {
+            // enviar el correo
             Mail::to($loan->user->email)
-            ->bcc('mauricio.chavez@keyinstitute.edu.sv')
-            ->send(new LoanReminderMail($loan, 'expired'));
+                ->bcc('maurchafu.10@gmail.com')
+                ->send(new LoanReminderMail($loan, 'expired'));
+
+            // marcar como enviado
+            $loan->forceFill([
+                'reminder_sent_at' => now(),
+            ])->save();
         }
 
-        $this->info('Recordatorios enviadoos correctamente');
+        $this->info("Se enviaron {$soonLoans->count()} recordatorios ✔");
     }
 }

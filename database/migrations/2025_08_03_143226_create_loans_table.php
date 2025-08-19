@@ -26,6 +26,7 @@ return new class extends Migration
             $table->date('fecha_prestamo')->nullable();
             $table->date('fecha_vencimiento')->nullable();
             $table->date('returned_at')->nullable();
+             $table->timestamp('reminder_sent_at')->nullable()->index();
 
             $table->timestamps();
         });
