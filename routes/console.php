@@ -14,7 +14,5 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('loans:send-reminders')
-    ->dailyAt('08:00')
-    ->timezone('America/El_Salvador')
-    ->withoutOverlapping()
-    ->onOneServer();
+    ->daily()
+    ->runInBackground();

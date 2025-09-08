@@ -15,7 +15,7 @@ class SendLoanReminders extends Command
      *
      * @var string
      */
-    protected $signature = 'app:send-loan-reminders';
+    protected $signature = 'loans:send-reminders';
 
 
     /**

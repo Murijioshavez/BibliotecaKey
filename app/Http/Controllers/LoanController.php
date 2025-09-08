@@ -5,6 +5,8 @@ use App\Models\Book;
 use App\Models\Loan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use App\Mail\LoanApprovedMail;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 
 class LoanController extends Controller
@@ -40,20 +42,24 @@ class LoanController extends Controller
         return redirect()->route('books.index')->with('success', 'Libro reservado exitosamente');
     }
 
-    public function approve(Loan $loan)
-    {
-        if ($loan->status !== 'reservado') {
-            return redirect()->back()->with('error', 'El prestamo no puede aprobarse');
-        }
-
-        $loan->update([
-            'status' => 'prestado',
-            'fecha_prestamo' => now(),
-            'fecha_vencimiento' => now()->addDays(1),
-        ]);
-        return redirect()->back()->with('success', 'El prestamo fue aprobado');
-
+public function approve(Loan $loan)
+{
+    if ($loan->status !== 'reservado') {
+        return redirect()->back()->with('error', 'El prestamo no puede aprobarse');
     }
+
+    $loan->update([
+        'status' => 'prestado',
+        'fecha_prestamo' => now(),
+        'fecha_vencimiento' => now()->addDays(7),
+    ]);
+
+    // Pasar solo el ID al mail para evitar serialización de relaciones
+    Mail::to($loan->user->email)
+        ->queue(new LoanApprovedMail($loan->id));
+
+    return redirect()->back()->with('success', 'El prestamo fue aprobado');
+}
     public function reject(Loan $loan, Book $book)
     {
         if ($loan->status !== 'reservado') {
@@ -73,5 +79,7 @@ class LoanController extends Controller
             'loans' => $loans
         ]);
     }
+
+
 
 }

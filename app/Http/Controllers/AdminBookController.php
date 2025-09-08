@@ -87,13 +87,14 @@ public function updateBook(Request $request, Book $book): RedirectResponse
         return redirect()->route('books.index')->with('success', 'El libro se ha eliminado exitosamente');
     }
 
-    public function returnsView()
+public function returnsView()
 {
-    // Cargar solo préstamos aprobados y no devueltos
+    // Cargar solo préstamos aprobados y no devueltos con paginación de 10 en 10
     $loans = Loan::with('book', 'user')
         ->whereIn('status', ['prestado', 'vencido'])
         ->whereNull('returned_at')
-        ->get();
+        ->orderBy('fecha_prestamo', 'desc') 
+        ->paginate(10);
 
     return Inertia::render('Admin/Returns', [
         'loans' => $loans

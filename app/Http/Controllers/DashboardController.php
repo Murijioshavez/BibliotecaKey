@@ -16,6 +16,7 @@ public function index() {
     $totalLibros = null;
     $librosPrestados = null;
     $reservasPendientes = null;
+    $latestLoans = null;
     $historial = [];
 
     if ($user->role === 'admin') {
@@ -23,6 +24,7 @@ public function index() {
         $totalLibros = Book::count();
         $librosPrestados = Loan::where('status', 'prestado')->count();
         $reservasPendientes = Loan::where('status', 'reservado')->count();
+        $latestLoans = Loan::with('book', 'user')->latest()->take(5)->get();
 
     } else {
         // Datos solo para estudiante
@@ -37,6 +39,7 @@ public function index() {
         'librosPrestados' => $librosPrestados,
         'reservasPendientes' => $reservasPendientes,
         'historial' => $historial,
+        'latestLoans' => $latestLoans,
         'role' => $user->role,
     ]);
 }

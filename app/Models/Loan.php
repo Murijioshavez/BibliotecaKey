@@ -16,6 +16,10 @@ class Loan extends Model
         'fecha_vencimiento',
         'returned_at'
     ];
+        protected $casts = [
+        'fecha_prestamo' => 'datetime',
+        'fecha_vencimiento' => 'datetime',
+    ];
 
     public function user()
     {

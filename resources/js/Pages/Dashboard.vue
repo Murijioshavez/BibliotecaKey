@@ -6,6 +6,7 @@ import useFlashMessages from '@/Composables/useFlashMessages.js'
 useFlashMessages()
 
 const { props } = usePage();
+console.log(props)
 </script>
 
 <template>
@@ -125,10 +126,49 @@ const { props } = usePage();
                         <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100 select-none">
                             Últimos Préstamos / Reservas
                         </h2>
-                        <div
-                            class="h-32 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center text-gray-600 dark:text-gray-300 italic select-none">
-                            Tabla de últimas reservas
-                        </div>
+                        <div class="overflow-x-auto rounded-md border border-gray-300 dark:border-gray-700">
+  <table class="min-w-full table-auto border-collapse">
+    <thead class="bg-gray-100 dark:bg-gray-700">
+      <tr>
+        <th class="border-b border-gray-300 dark:border-gray-600 p-3 text-left text-gray-700 dark:text-gray-200 font-semibold text-sm">
+          Libro
+        </th>
+        <th class="border-b border-gray-300 dark:border-gray-600 p-3 text-left text-gray-700 dark:text-gray-200 font-semibold text-sm">
+          Usuario
+        </th>
+        <th class="border-b border-gray-300 dark:border-gray-600 p-3 text-left text-gray-700 dark:text-gray-200 font-semibold text-sm">
+          Fecha Reserva
+        </th>
+        <th class="border-b border-gray-300 dark:border-gray-600 p-3 text-left text-gray-700 dark:text-gray-200 font-semibold text-sm">
+          Estado
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Aquí ponés tu v-for -->
+      <tr v-for="Loan in $page.props.latestLoans" :key="Loan.id" class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-800 dark:even:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+        <td class="border-b border-gray-300 dark:border-gray-600 p-3 truncate max-w-xs">
+          {{ Loan.book.title }}
+        </td>
+        <td class="border-b border-gray-300 dark:border-gray-600 p-3 truncate max-w-xs">
+          {{ Loan.user.name }}
+        </td>
+        <td class="border-b border-gray-300 dark:border-gray-600 p-3 whitespace-nowrap">
+          {{ Loan.fecha_reserva ?? 'N/A' }}
+        </td>
+        <td class="border-b border-gray-300 dark:border-gray-600 p-3 capitalize font-medium text-gray-800 dark:text-gray-300">
+          {{ Loan.status }}
+        </td>
+      </tr>
+
+      <tr v-if="!$page.props.latestLoans || $page.props.latestLoans.length === 0">
+        <td colspan="4" class="p-4 text-center text-gray-500 dark:text-gray-400 italic select-none">
+          No hay reservas recientes.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
                     </div>
                 </section>
 

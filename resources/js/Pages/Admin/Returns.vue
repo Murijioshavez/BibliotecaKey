@@ -7,6 +7,11 @@ import Swal from 'sweetalert2';
 const props = usePage().props;
 const loans = ref(props.loans || []);
 
+function goToPage(url) {
+  if (!url) return;
+  window.location.href = url; // Forzar recarga
+}
+
 function markReturned(loanId) {
   Swal.fire({
     title: '¿Marcar como devuelto?',
@@ -18,7 +23,7 @@ function markReturned(loanId) {
     confirmButtonText: 'Sí, devolverlo',
   }).then((result) => {
     if (result.isConfirmed) {
-      router.put(route('loans.markAsReturned', loanId), {}, {
+      router.put(route('admin.returns.mark', loanId), {}, {
         onSuccess: () => {
           Swal.fire('¡Hecho!', 'El préstamo fue marcado como devuelto.', 'success');
           loans.value = loans.value.filter(l => l.id !== loanId);
@@ -65,14 +70,14 @@ function markReturned(loanId) {
           </thead>
 
           <tbody>
-            <tr v-if="loans.length === 0">
+            <tr v-if="loans.data.length === 0">
               <td colspan="6" class="p-6 text-center text-gray-500 dark:text-gray-400 italic select-none">
                 No hay préstamos pendientes de devolución.
               </td>
             </tr>
 
             <tr
-              v-for="loan in loans"
+              v-for="loan in loans.data"
               :key="loan.id"
               class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-800 dark:text-white dark:even:bg-gray-700 hover:bg-green-50 dark:hover:bg-green-900 transition-colors"
               title="Marcar préstamo como devuelto"
@@ -105,6 +110,25 @@ function markReturned(loanId) {
           </tbody>
         </table>
       </div>
+
+      <!-- Paginación -->
+      <nav class="mt-6 flex justify-center flex-wrap gap-2">
+        <a
+          v-for="link in loans.links"
+          :key="link.label"
+          v-html="link.label"
+          :href="link.url"
+          @click.prevent="link.url && goToPage(link.url)"
+          :class="[
+            'px-3 py-1 rounded-md border text-sm',
+            link.active
+              ? 'bg-blue-600 text-white border-blue-600'
+              : 'bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700 border-gray-300 dark:border-gray-600',
+            !link.url ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+          ]"
+          :aria-disabled="!link.url"
+        />
+      </nav>
     </div>
   </AuthenticatedLayout>
 </template>

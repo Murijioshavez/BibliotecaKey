@@ -9,72 +9,85 @@ defineProps({
 </script>
 
 <template>
+
     <Head title="Biblioteca" />
-    <div class="bg-gray-50 text-black/50 dark:bg-black dark:text-white/50">
-        <div class="relative flex min-h-screen flex-col items-center justify-center selection:bg-[#FF2D20] selection:text-white">
-            <div class="relative w-full max-w-2xl px-6 lg:max-w-4xl">
 
-                <!-- Header -->
-                <header class="grid grid-cols-2 items-center gap-2 py-10 lg:grid-cols-3">
-                    <div class="flex lg:col-start-2 lg:justify-center">
-                        <ApplicationLogo class="h-20 w-20"/>
-                    </div>
-                    <nav v-if="canLogin" class="-mx-3 flex flex-1 justify-end">
-                        <Link v-if="$page.props.auth.user" :href="route('dashboard')"
-                              class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white">
-                            Dashboard
+    <div class="bg-gradient-to-b from-gray-100 to-gray-50 dark:from-gray-900 dark:to-black min-h-screen flex flex-col">
+        <!-- Navigation -->
+        <header class="w-full flex items-center justify-between p-6 lg:px-20">
+            <ApplicationLogo class="h-16 w-16" />
+
+            <nav class="flex gap-4">
+                <Link v-if="$page.props.auth.user" :href="route('dashboard')"
+                    class="px-4 py-2 rounded-md font-medium bg-blue-600 text-white hover:bg-blue-700 transition">
+                Dashboard
+                </Link>
+
+                <template v-else>
+                    <Link :href="route('login')"
+                        class="px-4 py-2 rounded-md font-medium bg-blue-600 text-white hover:bg-blue-700 transition">
+                    Log in
+                    </Link>
+
+                    <Link v-if="canRegister" :href="route('register')"
+                        class="px-4 py-2 rounded-md font-medium bg-green-600 text-white hover:bg-green-700 transition">
+                    Register
+                    </Link>
+                </template>
+            </nav>
+        </header>
+
+        <!-- Hero / Welcome Card -->
+        <main class="flex-grow flex items-center justify-center px-6 lg:px-20">
+            <div
+                class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-10 max-w-4xl w-full flex flex-col lg:flex-row gap-8 lg:gap-12 transition-colors">
+
+                <!-- Icon -->
+                <div
+                    class="flex items-center justify-center shrink-0 w-28 h-28 rounded-full bg-blue-100 dark:bg-blue-900">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                        class="w-16 h-16 text-blue-600 dark:text-blue-400" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M6 1h6v7a.5.5 0 0 1-.757.429L9 7.083 6.757 8.43A.5.5 0 0 1 6 8z" />
+                        <path
+                            d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2" />
+                        <path
+                            d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1z" />
+                    </svg>
+                </div>
+
+                <!-- Text Content -->
+                <div class="flex-1 flex flex-col justify-center">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                        Biblioteca Universitaria
+                    </h1>
+                    <p class="mt-4 text-gray-700 dark:text-gray-300 leading-relaxed">
+                        Bienvenido a la biblioteca universitaria. Aquí podrás consultar, reservar y gestionar libros
+                        fácilmente.
+                        Nuestro objetivo es ofrecerte acceso rápido y ordenado a todos nuestros recursos en Key
+                        Institute.
+                    </p>
+
+                    <div class="mt-6 flex flex-wrap gap-4">
+                        <a href="/REGLAMENTO_DE_BIBLIOTECA_KEY.pdf" download>
+                            <button
+                                class="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium">
+                                Descargar reglamento
+                            </button>
+                        </a>
+                        <Link v-if="$page.props.auth.user" :href="route('dashboard')">
+                        <button
+                            class="px-5 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition font-medium">
+                            Ir al Dashboard
+                        </button>
                         </Link>
-
-                        <template v-else>
-                            <Link :href="route('login')"
-                                  class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white">
-                                Log in
-                            </Link>
-
-                            <Link v-if="canRegister" :href="route('register')"
-                                  class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white">
-                                Register
-                            </Link>
-                        </template>
-                    </nav>
-                </header>
-
-                <!-- Main Card -->
-                <main class="mt-6">
-                    <div class="rounded-lg bg-white p-6 shadow-lg ring-1 ring-white/[0.05] transition duration-300 dark:bg-zinc-900 dark:ring-zinc-800">
-                        <div class="flex items-start gap-4">
-                            <div class="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#006DFF]/10 sm:size-16">
-                                <svg class="size-5 sm:size-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <path fill="#006DFF" d="M4 4h16v16H4z"/>
-                                </svg>
-                            </div>
-
-                            <div class="flex-1">
-                                <h2 class="text-xl font-semibold text-black dark:text-white">
-                                    Biblioteca Universitaria
-                                </h2>
-
-                                <p class="mt-4 text-sm/relaxed">
-                                    Bienvenido a la biblioteca universitaria. Aquí podrás consultar,
-                                    reservar y gestionar libros fácilmente. Nuestro objetivo es
-                                    ofrecerte acceso rápido y ordenado a todos nuestros recursos en Key Institute.
-                                </p>
-
-                                <div class="mt-6">
-                                    <a href="/REGLAMENTO_DE_BIBLIOTECA_KEY.pdf" download>
-                                        <button
-                                            class="rounded-md bg-[#006DFF] px-4 py-2 text-white hover:bg-[#31F483] hover:text-black transition">
-                                            Descargar reglamento de reservas
-                                        </button>
-
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
                     </div>
-                </main>
-
+                </div>
             </div>
-        </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="py-6 text-center text-gray-500 dark:text-gray-400 text-sm">
+            &copy; 2025 Key Institute. Todos los derechos reservados.
+        </footer>
     </div>
 </template>
