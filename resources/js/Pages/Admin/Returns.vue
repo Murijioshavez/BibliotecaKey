@@ -112,7 +112,7 @@ function markReturned(loanId) {
       </div>
 
       <!-- Paginación -->
-      <nav class="mt-6 flex justify-center flex-wrap gap-2">
+      <nav class="mt-6 flex justify-center flex-wrap gap-2 dark:text-white">
         <a
           v-for="link in loans.links"
           :key="link.label"

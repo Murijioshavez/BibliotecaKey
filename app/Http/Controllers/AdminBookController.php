@@ -93,7 +93,7 @@ public function returnsView()
     $loans = Loan::with('book', 'user')
         ->whereIn('status', ['prestado', 'vencido'])
         ->whereNull('returned_at')
-        ->orderBy('fecha_prestamo', 'desc') 
+        ->orderBy('fecha_prestamo', 'desc')
         ->paginate(10);
 
     return Inertia::render('Admin/Returns', [
@@ -110,11 +110,25 @@ public function markAsReturned(Loan $loan)
 
     return redirect()->route('admin.returns')->with('success', 'Préstamo marcado como devuelto.');
 }
-public function history()
+public function history(Request $request)
 {
-    $loans = Loan::with('book', 'user')->orderBy('created_at', 'desc')->paginate(15);
+    $search = $request->input('search');
+
+    $loans = Loan::with('book', 'user')
+        ->when($search, function ($query, $search) {
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        })
+        ->orderBy('created_at', 'desc')
+        ->paginate(15)
+        ->withQueryString(); // Mantiene el search en la paginación
+
     return Inertia::render('Admin/History', [
-        'loans' => $loans
+        'loans' => $loans,
+        'filters' => [
+            'search' => $search,
+        ],
     ]);
 }
 

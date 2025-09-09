@@ -113,14 +113,6 @@ console.log(props)
                         </div>
                     </div>
 
-                    <!-- Botón para agregar libro -->
-                    <div class="text-center">
-                        <button type="button"
-                            class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-400 focus:ring-opacity-50 transition">
-                            Agregar Libro
-                        </button>
-                    </div>
-
                     <!-- Últimos préstamos/reservas -->
                     <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
                         <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100 select-none">
@@ -146,7 +138,7 @@ console.log(props)
     </thead>
     <tbody>
       <!-- Aquí ponés tu v-for -->
-      <tr v-for="Loan in $page.props.latestLoans" :key="Loan.id" class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-800 dark:even:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+      <tr v-for="Loan in $page.props.latestLoans" :key="Loan.id" class="odd:bg-white dark:text-white even:bg-gray-50 dark:odd:bg-gray-800 dark:even:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
         <td class="border-b border-gray-300 dark:border-gray-600 p-3 truncate max-w-xs">
           {{ Loan.book.title }}
         </td>

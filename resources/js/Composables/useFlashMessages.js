@@ -1,21 +1,24 @@
-import { onMounted } from 'vue';
+// useFlashMessages.js
+import { watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
 
 export default function useFlashMessages() {
-    const { props } = usePage();
+  const page = usePage();
 
-    onMounted(() => {
-        if (props.flash?.success) {
-            Swal.fire('¡Éxito!', props.flash.success, 'success');
-        }
-
-        if (props.flash?.error) {
-            Swal.fire('Error', props.flash.error, 'error');
-        }
-
-        if (props.flash?.info) {
-            Swal.fire('Información', props.flash.info, 'info');
-        }
-    });
+  watch(
+    () => page.props.flash,
+    (flash) => {
+      if (flash?.success) {
+        Swal.fire('¡Éxito!', flash.success, 'success');
+      }
+      if (flash?.error) {
+        Swal.fire('Error', flash.error, 'error');
+      }
+      if (flash?.info) {
+        Swal.fire('Información', flash.info, 'info');
+      }
+    },
+    { deep: true, immediate: true }
+  );
 }

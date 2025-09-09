@@ -35,11 +35,14 @@ function reservarLibro() {
         cancelButtonText: 'Cancelar',
     }).then(result => {
         if (result.isConfirmed) {
-            router.post(route('books.reserve', book.id));
-            Swal.fire({
-                title: "¡Reservado!",
-                text: "La solicitud de reserva fue enviada exitosamente.",
-                icon: "success"
+            router.post(route('books.reserve', book.id), {}, {
+                onError: (errors) => {
+                    Swal.fire({
+                        title: "Error",
+                        text: errors?.message || "No se pudo realizar la reserva.",
+                        icon: "error",
+                    });
+                },
             });
         }
     });
