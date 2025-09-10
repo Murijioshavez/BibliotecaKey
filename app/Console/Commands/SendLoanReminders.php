@@ -43,7 +43,7 @@ class SendLoanReminders extends Command
         foreach ($soonLoans as $loan) {
             // enviar el correo
             Mail::to($loan->user->email)
-                ->bcc('maurchafu.10@gmail.com')
+                ->bcc('maria.aparicio@keyinstitute.edu.sv')
                 ->send(new LoanReminderMail($loan, 'expired'));
 
             // marcar como enviado
