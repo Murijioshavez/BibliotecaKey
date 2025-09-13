@@ -2,9 +2,10 @@
 FROM node:20 AS node_build
 WORKDIR /var/www/html
 
-# Instalar PHP CLI + Composer para poder instalar dependencias
+# Instalar PHP CLI + dependencias necesarias + Composer
 RUN apt-get update && apt-get install -y \
-    php-cli unzip curl git libsqlite3-dev \
+    php-cli unzip curl git libsqlite3-dev libxml2-dev \
+    && docker-php-ext-install pdo pdo_sqlite mbstring exif pcntl bcmath gd dom simplexml \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Copiar PHP + Node deps
@@ -29,7 +30,7 @@ FROM php:8.2.5-fpm
 # Instalar dependencias PHP y sistema
 RUN apt-get update && apt-get install -y \
     git curl libpng-dev libonig-dev libxml2-dev zip unzip sqlite3 libsqlite3-dev \
-    && docker-php-ext-install pdo pdo_sqlite mbstring exif pcntl bcmath gd
+    && docker-php-ext-install pdo pdo_sqlite mbstring exif pcntl bcmath gd dom simplexml
 
 # Instalar Composer
 COPY --from=node_build /usr/local/bin/composer /usr/local/bin/composer
