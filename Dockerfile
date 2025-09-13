@@ -70,14 +70,19 @@ RUN mkdir -p /var/www/html
 WORKDIR /var/www/html
 
 # Copiar archivos de la aplicación
-COPY . .
+COPY --chown=www:www . .
 
 # Configurar permisos
 RUN chown -R www:www /var/www/html && \
     chmod -R 755 /var/www/html/storage && \
     chmod -R 755 /var/www/html/bootstrap/cache
 
-# Copiar configuraciones
+# Crear directorio docker si no existe y copiar configuraciones
+RUN mkdir -p /etc/supervisor/conf.d && \
+    mkdir -p /usr/local/etc/php/conf.d && \
+    mkdir -p /etc/cron.d
+
+# Copiar configuraciones (usando COPY condicional)
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
 COPY docker/crontab /etc/cron.d/laravel-cron
@@ -93,10 +98,9 @@ EXPOSE 5173
 # Cambiar al usuario www
 USER www
 
-# Instalar dependencias de Composer y Node
-RUN composer install --no-interaction --optimize-autoloader --no-dev && \
-    npm install && \
-    npm run build
+# Instalar dependencias de Composer y Node (si existen los archivos)
+RUN if [ -f "composer.json" ]; then composer install --no-interaction --optimize-autoloader --no-dev; fi && \
+    if [ -f "package.json" ]; then npm install && npm run build; fi
 
 # Volver a root para supervisord
 USER root
