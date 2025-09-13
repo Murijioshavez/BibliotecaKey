@@ -1,3 +1,4 @@
+version: '3.8'
 
 services:
   app:
@@ -6,7 +7,9 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - .:/var/www/html
+      - .:/var/www/html           # Monta tu proyecto para edición en tiempo real
+      - vendor:/var/www/html/vendor  # Mantener dependencias PHP
+      - node_modules:/var/www/html/node_modules  # Mantener dependencias Node
     environment:
       APP_ENV: local
       APP_DEBUG: true
@@ -18,3 +21,7 @@ services:
       MAIL_PORT: 1025
       MAIL_FROM_ADDRESS: admin@example.com
       MAIL_FROM_NAME: "Library System"
+
+volumes:
+  vendor:
+  node_modules:
