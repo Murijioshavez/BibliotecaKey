@@ -1,0 +1,11 @@
+node_modules
+vendor
+.git
+.dockerignore
+Dockerfile
+docker-compose.yml
+.env
+public/storage
+*.log
+.DS_Store
+Thumbs.db

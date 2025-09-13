@@ -21,11 +21,11 @@ class DatabaseSeeder extends Seeder
             'role'=> 'admin',
         ]);
 
-        User::factory(100)->create();
+        // User::factory(100)->create();
 
-        $this->call([
-            BookSeeder::class,
-            LoanSeeder::class
-        ]);
+        // $this->call([
+        //     BookSeeder::class,
+        //     LoanSeeder::class
+        // ]);
     }
 }
