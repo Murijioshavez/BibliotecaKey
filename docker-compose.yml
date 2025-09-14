@@ -1,39 +1,44 @@
 
 services:
-  laravel-app:
+  app:
+    image: laravel-vue-app
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: laravel-vue-app
+      dockerfile: DockerfileUbuntu
+    command: ["php-fpm8.4", "-F"]
     restart: unless-stopped
-    working_dir: /var/www/html
-    volumes:
-      - .:/var/www/html
-      - ./docker/php.ini:/usr/local/etc/php/conf.d/custom.ini
-      - ./docker/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf
-    ports:
-      - "8000:8000"
-      - "5173:5173"
     environment:
-      - APP_NAME=Laravel
-      - APP_ENV=local
-      - APP_KEY=base64:your_app_key_here
-      - APP_DEBUG=true
-      - APP_URL=http://localhost:8000
+      - PHP_UPLOAD_MAX_FILESIZE=128M
+    ports:
+      - "9000:9000"
+    env_file: .env
+    volumes:
+      - ./database/database.sqlite:/var/www/html/database/database.sqlite
+      - app_storage:/var/www/html/storage
 
-      - DB_CONNECTION=sqlite
-      - DB_DATABASE=/var/www/html/database/database.sqlite
+  queue:
+    image: laravel-vue-app
+    build:
+      context: .
+      dockerfile: DockerfileUbuntu
+    command: ["php", "artisan", "queue:work"]
+    env_file: .env
+    restart: unless-stopped
+    volumes:
+      - ./database/database.sqlite:/var/www/html/database/database.sqlite
+      - app_storage:/var/www/html/storage
 
-      - MAIL_MAILER=log
-      - QUEUE_CONNECTION=database
-      - SESSION_DRIVER=database
-      - SESSION_LIFETIME=120
+  schedule:
+    image: laravel-vue-app
+    build:
+      context: .
+      dockerfile: DockerfileUbuntu
+    command: ["php", "artisan", "schedule:work"]
+    env_file: .env
+    restart: unless-stopped
+    volumes:
+      - ./database/database.sqlite:/var/www/html/database/database.sqlite
+      - app_storage:/var/www/html/storage
 
-      - VITE_APP_NAME="${APP_NAME}"
-      - VITE_APP_URL="${APP_URL}"
-    networks:
-      - laravel-network
-
-networks:
-  laravel-network:
-    driver: bridge
+volumes:
+  app_storage:
