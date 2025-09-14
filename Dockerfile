@@ -1,14 +1,12 @@
-FROM ubuntu:22.04
-# Evitar preguntas interactivas durante la instalación
+FROM ubuntu:24.04
+
+ENV PHP_VERSION=8.4
+ENV NODE_VERSION=22
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
     software-properties-common \
     curl \
-    wget \
-    git \
-    unzip \
     libzip-dev \
     libpng-dev \
     libonig-dev \
@@ -17,93 +15,50 @@ RUN apt-get update && apt-get install -y \
     libcurl4-openssl-dev \
     libpq-dev \
     libsqlite3-dev \
-    supervisor \
-    cron \
-    nano \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalar PHP 8.2 y extensiones necesarias
 RUN add-apt-repository ppa:ondrej/php -y && \
     apt-get update && \
     apt-get install -y \
-    php8.2 \
-    php8.2-cli \
-    php8.2-fpm \
-    php8.2-common \
-    php8.2-mysql \
-    php8.2-sqlite3 \
-    php8.2-zip \
-    php8.2-gd \
-    php8.2-mbstring \
-    php8.2-curl \
-    php8.2-xml \
-    php8.2-bcmath \
-    php8.2-pdo \
-    php8.2-pdo-sqlite \
-    php8.2-pdo-mysql \
-    php8.2-tokenizer \
-    php8.2-redis \
-    php8.2-simplexml \
-    php8.2-dom \
-    php8.2-intl\
-    php-fpm8.4
+    php${PHP_VERSION} \
+    php${PHP_VERSION}-cli \
+    php${PHP_VERSION}-fpm \
+    php${PHP_VERSION}-common \
+    php${PHP_VERSION}-mysql \
+    php${PHP_VERSION}-sqlite3 \
+    php${PHP_VERSION}-zip \
+    php${PHP_VERSION}-gd \
+    php${PHP_VERSION}-mbstring \
+    php${PHP_VERSION}-curl \
+    php${PHP_VERSION}-xml \
+    php${PHP_VERSION}-bcmath \
+    php${PHP_VERSION}-redis \
+    php${PHP_VERSION}-intl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Instalar Node.js 20.x
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs
+RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - && \
+ apt-get install -y nodejs
 
-# Instalar Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Configurar PHP-FPM
-RUN mkdir -p /run/php && \
-    sed -i 's/;daemonize = yes/daemonize = no/' /etc/php/8.2/fpm/php-fpm.conf && \
-    sed -i 's/listen = \/run\/php\/php8.2-fpm.sock/listen = 9000/' /etc/php/8.2/fpm/pool.d/www.conf && \
-    sed -i 's/;clear_env = no/clear_env = no/' /etc/php/8.2/fpm/pool.d/www.conf
+RUN mkdir -p /var/www/.npm
+RUN chown -R www-data:www-data /var/www/.npm
 
-# Crear usuario y grupo para la aplicación
-RUN groupadd -g 1000 www && \
-    useradd -u 1000 -ms /bin/bash -g www www
-
-# Crear directorio de la aplicación
 RUN mkdir -p /var/www/html
 WORKDIR /var/www/html
 
-# Copiar archivos de la aplicación
-COPY --chown=www:www . .
+RUN chmod -R 777 /var/log
 
-# Configurar permisos
-RUN chown -R www:www /var/www/html && \
-    chmod -R 755 /var/www/html/storage && \
-    chmod -R 755 /var/www/html/bootstrap/cache
+COPY --chown=www-data:www-data . .
 
-# Crear directorio docker si no existe y copiar configuraciones
-RUN mkdir -p /etc/supervisor/conf.d && \
-    mkdir -p /usr/local/etc/php/conf.d && \
-    mkdir -p /etc/cron.d
+RUN chown -R www-data:www-data /var/www/html && \
+chmod -R 755 /var/www/html/storage && \
+chmod -R 755 /var/www/html/bootstrap/cache
 
-# Copiar configuraciones (usando COPY condicional)
-COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
-COPY docker/crontab /etc/cron.d/laravel-cron
+USER www-data
 
-# Dar permisos al archivo cron
-RUN chmod 0644 /etc/cron.d/laravel-cron && \
-    crontab /etc/cron.d/laravel-cron
+RUN composer install --no-interaction --optimize-autoloader --no-dev && \
+    npm install && npm run build
 
-# Exponer puertos
-EXPOSE 9000
-EXPOSE 5173
-
-# Cambiar al usuario www
-USER www
-
-# Instalar dependencias de Composer y Node (si existen los archivos)
-RUN if [ -f "composer.json" ]; then composer install --no-interaction --optimize-autoloader --no-dev; fi && \
-    if [ -f "package.json" ]; then npm install && npm run build; fi
-
-# Volver a root para supervisord
-USER root
-
-# Punto de entrada
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+ENV VIEW_COMPILED_PATH=/var/www/html/bootstrap/cache/views
+RUN php artisan optimize --except config
