@@ -4,7 +4,7 @@ services:
     image: laravel-vue-app
     build:
       context: .
-      dockerfile: DockerfileUbuntu
+      dockerfile: Dockerfile
     command: ["php-fpm8.4", "-F"]
     restart: unless-stopped
     environment:
@@ -20,7 +20,7 @@ services:
     image: laravel-vue-app
     build:
       context: .
-      dockerfile: DockerfileUbuntu
+      dockerfile: Dockerfile
     command: ["php", "artisan", "queue:work"]
     env_file: .env
     restart: unless-stopped
@@ -32,7 +32,7 @@ services:
     image: laravel-vue-app
     build:
       context: .
-      dockerfile: DockerfileUbuntu
+      dockerfile: Dockerfile
     command: ["php", "artisan", "schedule:work"]
     env_file: .env
     restart: unless-stopped
