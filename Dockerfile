@@ -62,3 +62,30 @@ RUN composer install --no-interaction --optimize-autoloader --no-dev && \
 
 ENV VIEW_COMPILED_PATH=/var/www/html/bootstrap/cache/views
 RUN php artisan optimize --except config
+
+RUN mkdir -p /var/www/html/storage/logs && \
+    mkdir -p /var/www/html/storage/framework && \
+    mkdir -p /var/www/html/storage/framework/cache && \
+    mkdir -p /var/www/html/storage/framework/sessions && \
+    mkdir -p /var/www/html/storage/framework/views && \
+    mkdir -p /var/www/html/bootstrap/cache && \
+    mkdir -p /var/www/html/database
+
+# Dar permisos adecuados
+RUN chown -R www-data:www-data /var/www/html && \
+    find /var/www/html/storage -type d -exec chmod 775 {} \; && \
+    find /var/www/html/storage -type f -exec chmod 664 {} \; && \
+    find /var/www/html/bootstrap/cache -type d -exec chmod 775 {} \; && \
+    find /var/www/html/bootstrap/cache -type f -exec chmod 664 {} \; && \
+    chmod 777 /var/www/html/storage/logs
+
+# Crear base de datos con permisos
+RUN touch /var/www/html/database/database.sqlite && \
+    chown www-data:www-data /var/www/html/database/database.sqlite && \
+    chmod 666 /var/www/html/database/database.sqlite
+
+# Cambiar al usuario correcto
+USER www-data
+
+# Comando final
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
