@@ -10,7 +10,7 @@ services:
     environment:
       - PHP_UPLOAD_MAX_FILESIZE=128M
     ports:
-      - "9000:9000"
+      - "8000:8000"
     env_file: .env
     volumes:
       - ./database/database.sqlite:/var/www/html/database/database.sqlite
