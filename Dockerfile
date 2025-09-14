@@ -45,7 +45,8 @@ RUN add-apt-repository ppa:ondrej/php -y && \
     php8.2-redis \
     php8.2-simplexml \
     php8.2-dom \
-    php8.2-intl
+    php8.2-intl\
+    php-fpm8.4
 
 # Instalar Node.js 20.x
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
