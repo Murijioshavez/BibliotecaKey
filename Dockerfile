@@ -4,22 +4,20 @@ ENV PHP_VERSION=8.4
 ENV NODE_VERSION=22
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Instalar dependencias
 RUN apt-get update && apt-get install -y \
     software-properties-common \
     curl \
-    libzip-dev \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    libssl-dev \
-    libcurl4-openssl-dev \
-    libpq-dev \
-    libsqlite3-dev \
+    wget \
+    git \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
-RUN add-apt-repository ppa:ondrej/php -y && \
-    apt-get update && \
-    apt-get install -y \
+# Agregar repositorios
+RUN add-apt-repository ppa:ondrej/php -y
+
+# Instalar PHP
+RUN apt-get update && apt-get install -y \
     php${PHP_VERSION} \
     php${PHP_VERSION}-cli \
     php${PHP_VERSION}-fpm \
@@ -32,60 +30,57 @@ RUN add-apt-repository ppa:ondrej/php -y && \
     php${PHP_VERSION}-curl \
     php${PHP_VERSION}-xml \
     php${PHP_VERSION}-bcmath \
-    php${PHP_VERSION}-redis \
     php${PHP_VERSION}-intl \
+    php${PHP_VERSION}-opcache \
     && rm -rf /var/lib/apt/lists/*
 
+# Instalar Node.js
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - && \
- apt-get install -y nodejs
+    apt-get install -y nodejs
 
+# Instalar Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-RUN mkdir -p /var/www/.npm
-RUN chown -R www-data:www-data /var/www/.npm
+# Configurar PHP-FPM
+RUN sed -i 's/;daemonize = yes/daemonize = no/' /etc/php/${PHP_VERSION}/fpm/php-fpm.conf && \
+    sed -i 's/listen = .*/listen = 9000/' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
+    sed -i 's/;clear_env = no/clear_env = no/' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf
 
-RUN mkdir -p /var/www/html
+# Crear usuario
+RUN useradd -m -u 1000 -s /bin/bash www-data && \
+    mkdir -p /var/www/html && \
+    chown -R www-data:www-data /var/www
+
 WORKDIR /var/www/html
 
-RUN chmod -R 777 /var/log
-
+# Copiar aplicación
 COPY --chown=www-data:www-data . .
 
+# Configurar permisos DEFINITIVOS
+RUN mkdir -p storage/logs storage/framework storage/framework/cache \
+    storage/framework/sessions storage/framework/views \
+    bootstrap/cache database
+
 RUN chown -R www-data:www-data /var/www/html && \
-chmod -R 755 /var/www/html/storage && \
-chmod -R 755 /var/www/html/bootstrap/cache
+    chmod -R 775 storage bootstrap/cache database && \
+    chmod -R 777 storage/logs
 
+# Crear base de datos
+RUN touch database/database.sqlite && \
+    chown www-data:www-data database/database.sqlite && \
+    chmod 666 database/database.sqlite
+
+# Instalar dependencias
 USER www-data
-
 RUN composer install --no-interaction --optimize-autoloader --no-dev && \
-    npm install && npm run build
+    npm install && \
+    npm run build
 
-ENV VIEW_COMPILED_PATH=/var/www/html/bootstrap/cache/views
-RUN php artisan optimize --except config
+# Optimizar
+RUN php artisan optimize
 
-RUN mkdir -p /var/www/html/storage/logs && \
-    mkdir -p /var/www/html/storage/framework && \
-    mkdir -p /var/www/html/storage/framework/cache && \
-    mkdir -p /var/www/html/storage/framework/sessions && \
-    mkdir -p /var/www/html/storage/framework/views && \
-    mkdir -p /var/www/html/bootstrap/cache && \
-    mkdir -p /var/www/html/database
+# Puerto para PHP-FPM
+EXPOSE 9000
 
-# Dar permisos adecuados
-RUN chown -R www-data:www-data /var/www/html && \
-    find /var/www/html/storage -type d -exec chmod 775 {} \; && \
-    find /var/www/html/storage -type f -exec chmod 664 {} \; && \
-    find /var/www/html/bootstrap/cache -type d -exec chmod 775 {} \; && \
-    find /var/www/html/bootstrap/cache -type f -exec chmod 664 {} \; && \
-    chmod 777 /var/www/html/storage/logs
-
-# Crear base de datos con permisos
-RUN touch /var/www/html/database/database.sqlite && \
-    chown www-data:www-data /var/www/html/database/database.sqlite && \
-    chmod 666 /var/www/html/database/database.sqlite
-
-# Cambiar al usuario correcto
-USER www-data
-
-# Comando final
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# Comando para PHP-FPM
+CMD ["php-fpm8.4", "-F", "-R"]
