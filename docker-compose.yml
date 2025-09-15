@@ -1,73 +1,44 @@
-services:
-  # Servidor Nginx
-  nginx:
-    image: nginx:alpine
-    restart: unless-stopped
-    ports:
-      - "8000:80"
-    volumes:
-      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
-      - .:/var/www/html
-      - app_storage:/var/www/html/storage
-    depends_on:
-      - app
-    networks:
-      - laravel-network
 
-  # Servidor PHP-FPM (app)
+services:
   app:
+    image: laravel-vue-app
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: laravel-app
+      dockerfile: DockerfileUbuntu
+    command: ["php-fpm8.4", "-F"]
     restart: unless-stopped
-    working_dir: /var/www/html
-    volumes:
-      - .:/var/www/html
-      - app_storage:/var/www/html/storage
     environment:
       - PHP_UPLOAD_MAX_FILESIZE=128M
-    expose:
-      - "9000"
+    ports:
+      - "9000:9000"
     env_file: .env
-    networks:
-      - laravel-network
+    volumes:
+      - ./database/database.sqlite:/var/www/html/database/database.sqlite
+      - app_storage:/var/www/html/storage
 
-  # Queue worker
   queue:
+    image: laravel-vue-app
     build:
       context: .
-      dockerfile: Dockerfile
-    command: php artisan queue:work
+      dockerfile: DockerfileUbuntu
+    command: ["php", "artisan", "queue:work"]
     env_file: .env
     restart: unless-stopped
     volumes:
-      - .:/var/www/html
+      - ./database/database.sqlite:/var/www/html/database/database.sqlite
       - app_storage:/var/www/html/storage
-    depends_on:
-      - app
-    networks:
-      - laravel-network
 
-  # Scheduler
   schedule:
+    image: laravel-vue-app
     build:
       context: .
-      dockerfile: Dockerfile
-    command: php artisan schedule:work
+      dockerfile: DockerfileUbuntu
+    command: ["php", "artisan", "schedule:work"]
     env_file: .env
     restart: unless-stopped
     volumes:
-      - .:/var/www/html
+      - ./database/database.sqlite:/var/www/html/database/database.sqlite
       - app_storage:/var/www/html/storage
-    depends_on:
-      - app
-    networks:
-      - laravel-network
-
-networks:
-  laravel-network:
-    driver: bridge
 
 volumes:
   app_storage:
