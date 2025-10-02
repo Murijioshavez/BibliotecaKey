@@ -60,7 +60,7 @@ USER www-data
 RUN composer install --no-interaction --optimize-autoloader --no-dev && \
     npm install && npm run build
 
-EXPOSE 8000
+EXPOSE 9000
 
 ENV VIEW_COMPILED_PATH=/var/www/html/bootstrap/cache/views
 RUN php artisan optimize --except config
