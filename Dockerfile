@@ -22,7 +22,6 @@ RUN add-apt-repository ppa:ondrej/php -y && \
     apt-get install -y \
     php${PHP_VERSION} \
     php${PHP_VERSION}-cli \
-    php${PHP_VERSION}-fpm \
     php${PHP_VERSION}-common \
     php${PHP_VERSION}-mysql \
     php${PHP_VERSION}-sqlite3 \
@@ -52,8 +51,12 @@ RUN chmod -R 777 /var/log
 COPY --chown=www-data:www-data . .
 
 RUN chown -R www-data:www-data /var/www/html && \
-chmod -R 755 /var/www/html/storage && \
-chmod -R 755 /var/www/html/bootstrap/cache
+    chmod -R 755 /var/www/html/storage && \
+    chmod -R 755 /var/www/html/bootstrap/cache
+
+# Asegurar que el archivo SQLite exista y tenga permisos
+RUN touch /var/www/html/database/database.sqlite && \
+    chmod 666 /var/www/html/database/database.sqlite
 
 USER www-data
 
