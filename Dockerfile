@@ -1,69 +1,81 @@
-FROM ubuntu:24.04
+ARG PHP_VERSION=8.3
+ARG NODE_VERSION=22
 
-ENV PHP_VERSION=8.4
-ENV NODE_VERSION=22
-ENV DEBIAN_FRONTEND=noninteractive
+FROM php:${PHP_VERSION}-cli-bookworm
 
-RUN apt-get update && apt-get install -y \
-    software-properties-common \
-    curl \
-    libzip-dev \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    libssl-dev \
-    libcurl4-openssl-dev \
-    libpq-dev \
-    libsqlite3-dev \
-    && rm -rf /var/lib/apt/lists/*
+ARG NODE_VERSION
 
-RUN add-apt-repository ppa:ondrej/php -y && \
-    apt-get update && \
-    apt-get install -y \
-    php${PHP_VERSION} \
-    php${PHP_VERSION}-cli \
-    php${PHP_VERSION}-common \
-    php${PHP_VERSION}-mysql \
-    php${PHP_VERSION}-sqlite3 \
-    php${PHP_VERSION}-zip \
-    php${PHP_VERSION}-gd \
-    php${PHP_VERSION}-mbstring \
-    php${PHP_VERSION}-curl \
-    php${PHP_VERSION}-xml \
-    php${PHP_VERSION}-bcmath \
-    php${PHP_VERSION}-redis \
-    php${PHP_VERSION}-intl \
-    && rm -rf /var/lib/apt/lists/*
+ENV APP_ENV=production \
+    APP_DEBUG=false \
+    COMPOSER_ALLOW_SUPERUSER=1 \
+    COMPOSER_HOME=/tmp/composer \
+    LOG_CHANNEL=stderr \
+    PORT=8000
 
-RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - && \
- apt-get install -y nodejs
-
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-RUN mkdir -p /var/www/.npm
-RUN chown -R www-data:www-data /var/www/.npm
-
-RUN mkdir -p /var/www/html
 WORKDIR /var/www/html
 
-RUN chmod -R 777 /var/log
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        apt-transport-https \
+        ca-certificates \
+        curl \
+        g++ \
+        gcc \
+        git \
+        gnupg \
+        libcurl4-openssl-dev \
+        libfreetype6-dev \
+        libicu-dev \
+        libjpeg62-turbo-dev \
+        libonig-dev \
+        libpng-dev \
+        libpq-dev \
+        libsqlite3-dev \
+        libzip-dev \
+        make \
+        unzip \
+        unixodbc-dev \
+    && curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/mssql-release.list \
+    && curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18 nodejs \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j"$(nproc)" \
+        bcmath \
+        curl \
+        gd \
+        intl \
+        mbstring \
+        opcache \
+        pdo_mysql \
+        pdo_pgsql \
+        pdo_sqlite \
+        zip \
+    && pecl install redis sqlsrv pdo_sqlsrv \
+    && docker-php-ext-enable redis sqlsrv pdo_sqlsrv \
+    && rm -rf /var/lib/apt/lists/* /tmp/pear
+
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --no-progress --no-scripts --optimize-autoloader
+
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
 
 COPY --chown=www-data:www-data . .
 
-RUN chown -R www-data:www-data /var/www/html && \
-    chmod -R 755 /var/www/html/storage && \
-    chmod -R 755 /var/www/html/bootstrap/cache
-
-# Asegurar que el archivo SQLite exista y tenga permisos
-RUN touch /var/www/html/database/database.sqlite && \
-    chmod 666 /var/www/html/database/database.sqlite
+RUN npm run build \
+    && composer dump-autoload --optimize --no-scripts \
+    && php artisan package:discover --ansi \
+    && mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache database \
+    && touch database/database.sqlite \
+    && chown -R www-data:www-data storage bootstrap/cache database \
+    && chmod -R ug+rwX storage bootstrap/cache database \
+    && rm -rf node_modules
 
 USER www-data
 
-RUN composer install --no-interaction --optimize-autoloader --no-dev && \
-    npm install && npm run build
-
 EXPOSE 8000
 
-ENV VIEW_COMPILED_PATH=/var/www/html/bootstrap/cache/views
-RUN php artisan optimize --except config
+CMD ["sh", "-c", "php artisan config:clear && php artisan route:clear && php artisan view:clear && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"]

@@ -15,7 +15,7 @@ const form = reactive({
   available_copies: 1,
   category: '',
   description: '',
-  cover_path: null,
+  cover: null,
 });
 
 function handleFileChange(event) {
@@ -92,7 +92,7 @@ function submit() {
             placeholder="Ejemplo: Cien años de soledad"
             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
           />
-          <p v-if="errors.title" class="text-red-600 mt-1 text-sm">{{ errors.title[0] }}</p>
+          <p v-if="errors.title" class="text-red-600 mt-1 text-sm">{{ errors.title }}</p>
         </div>
 
         <div>
@@ -104,7 +104,7 @@ function submit() {
             placeholder="Ejemplo: Gabriel García Márquez"
             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
           />
-          <p v-if="errors.author" class="text-red-600 mt-1 text-sm">{{ errors.author[0] }}</p>
+          <p v-if="errors.author" class="text-red-600 mt-1 text-sm">{{ errors.author }}</p>
         </div>
 
         <div>
@@ -116,7 +116,7 @@ function submit() {
             placeholder="Ejemplo: 978-3-16-148410-0"
             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
           />
-          <p v-if="errors.isbn" class="text-red-600 mt-1 text-sm">{{ errors.isbn[0] }}</p>
+          <p v-if="errors.isbn" class="text-red-600 mt-1 text-sm">{{ errors.isbn }}</p>
         </div>
 
         <div>
@@ -128,7 +128,7 @@ function submit() {
             min="0"
             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
           />
-          <p v-if="errors.available_copies" class="text-red-600 mt-1 text-sm">{{ errors.available_copies[0] }}</p>
+          <p v-if="errors.available_copies" class="text-red-600 mt-1 text-sm">{{ errors.available_copies }}</p>
         </div>
 
         <div>
@@ -140,7 +140,7 @@ function submit() {
             placeholder="Ejemplo: Novela"
             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
           />
-          <p v-if="errors.category" class="text-red-600 mt-1 text-sm">{{ errors.category[0] }}</p>
+          <p v-if="errors.category" class="text-red-600 mt-1 text-sm">{{ errors.category }}</p>
         </div>
 
         <div>
@@ -152,7 +152,7 @@ function submit() {
             placeholder="Una breve descripción del libro..."
             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100 resize-none"
           ></textarea>
-          <p v-if="errors.description" class="text-red-600 mt-1 text-sm">{{ errors.description[0] }}</p>
+          <p v-if="errors.description" class="text-red-600 mt-1 text-sm">{{ errors.description }}</p>
         </div>
 
         <div>
@@ -165,7 +165,7 @@ function submit() {
             class="block w-full text-gray-700 dark:text-gray-300"
           />
           <img v-if="coverPreview" :src="coverPreview" alt="Previsualización" class="mb-4 max-h-40 object-contain" />
-          <p v-if="errors.cover" class="text-red-600 mt-1 text-sm">{{ errors.cover[0] }}</p>
+          <p v-if="errors.cover" class="text-red-600 mt-1 text-sm">{{ errors.cover }}</p>
         </div>
 
         <button

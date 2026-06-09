@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref } from 'vue';
+import { ref } from 'vue';
 import { useForm, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Swal from 'sweetalert2';
@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 const { props } = usePage();
 const errors = ref({});
 
-// Usamos useForm para manejar PATCH con Inertia
+// Enviamos POST + _method para que Laravel procese bien formularios multipart.
 const form = useForm({
   title: props.book.title || '',
   author: props.book.author || '',
@@ -19,20 +19,28 @@ const form = useForm({
 });
 
 function handleFileChange(e) {
-  form.cover = e.target.files[0];
+  form.cover = e.target.files[0] || null;
 }
 
 function submit() {
-  form.patch(route('books.admin.update', props.book.id), {
-    preserveScroll: true,
-    onSuccess: () => {
-      Swal.fire('¡Actualizado!', 'El libro fue actualizado correctamente.', 'success');
-    },
-    onError: (err) => {
-      errors.value = err;
-      Swal.fire('Error', 'No se pudo actualizar el libro.', 'error');
-    }
-  });
+  errors.value = {};
+
+  form
+    .transform((data) => ({
+      ...data,
+      _method: 'patch',
+    }))
+    .post(route('books.admin.update', props.book.id), {
+      forceFormData: true,
+      preserveScroll: true,
+      onSuccess: () => {
+        Swal.fire('¡Actualizado!', 'El libro fue actualizado correctamente.', 'success');
+      },
+      onError: (err) => {
+        errors.value = err;
+        Swal.fire('Error', 'No se pudo actualizar el libro.', 'error');
+      },
+    });
 }
 
 function cancelar() {
@@ -65,43 +73,43 @@ function cancelar() {
         <div>
           <label for="title" class="block font-semibold mb-1">Título</label>
           <input v-model="form.title" id="title" type="text" class="input-text" />
-          <p v-if="errors.title" class="error-text">{{ errors.title[0] }}</p>
+          <p v-if="errors.title" class="error-text">{{ errors.title }}</p>
         </div>
 
         <div>
           <label for="author" class="block font-semibold mb-1">Autor</label>
           <input v-model="form.author" id="author" type="text" class="input-text" />
-          <p v-if="errors.author" class="error-text">{{ errors.author[0] }}</p>
+          <p v-if="errors.author" class="error-text">{{ errors.author }}</p>
         </div>
 
         <div>
           <label for="isbn" class="block font-semibold mb-1">ISBN</label>
           <input v-model="form.isbn" id="isbn" type="text" class="input-text" />
-          <p v-if="errors.isbn" class="error-text">{{ errors.isbn[0] }}</p>
+          <p v-if="errors.isbn" class="error-text">{{ errors.isbn }}</p>
         </div>
 
         <div>
           <label for="available_copies" class="block font-semibold mb-1">Copias Disponibles</label>
           <input v-model.number="form.available_copies" id="available_copies" type="number" min="0" class="input-text" />
-          <p v-if="errors.available_copies" class="error-text">{{ errors.available_copies[0] }}</p>
+          <p v-if="errors.available_copies" class="error-text">{{ errors.available_copies }}</p>
         </div>
 
         <div>
           <label for="category" class="block font-semibold mb-1">Categoría</label>
           <input v-model="form.category" id="category" type="text" class="input-text" />
-          <p v-if="errors.category" class="error-text">{{ errors.category[0] }}</p>
+          <p v-if="errors.category" class="error-text">{{ errors.category }}</p>
         </div>
 
         <div>
           <label for="description" class="block font-semibold mb-1">Descripción</label>
           <textarea v-model="form.description" id="description" rows="4" class="input-text"></textarea>
-          <p v-if="errors.description" class="error-text">{{ errors.description[0] }}</p>
+          <p v-if="errors.description" class="error-text">{{ errors.description }}</p>
         </div>
 
         <div>
           <label for="cover" class="block font-semibold mb-1">Portada (opcional)</label>
           <input id="cover" type="file" @change="handleFileChange" accept="image/*" />
-          <p v-if="errors.cover" class="error-text">{{ errors.cover[0] }}</p>
+          <p v-if="errors.cover" class="error-text">{{ errors.cover }}</p>
         </div>
 
         <div class="flex gap-4 mt-6 justify-end">

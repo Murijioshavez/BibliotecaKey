@@ -1,25 +1,42 @@
 services:
   app:
-    image: laravel-vue-app
+    image: biblioteca-key:local
     build:
       context: .
       dockerfile: Dockerfile
-    command: ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+      args:
+        PHP_VERSION: "8.3"
+        NODE_VERSION: "22"
+    command:
+      - sh
+      - -c
+      - php artisan serve --host=0.0.0.0 --port=$${PORT:-8000}
     restart: unless-stopped
     ports:
-      - "8000:8000"
-    env_file: .env
+      - "${PORT:-8000}:${PORT:-8000}"
+    env_file:
+      - .env
+    environment:
+      PORT: ${PORT:-8000}
+      LOG_CHANNEL: ${LOG_CHANNEL:-stderr}
+      PHP_UPLOAD_MAX_FILESIZE: 128M
     volumes:
       - ./database/database.sqlite:/var/www/html/database/database.sqlite
       - app_storage:/var/www/html/storage
-    environment:
-      - PHP_UPLOAD_MAX_FILESIZE=128M
 
   queue:
-    image: laravel-vue-app
-    command: ["php", "artisan", "queue:work"]
-    env_file: .env
+    image: biblioteca-key:local
+    command:
+      - php
+      - artisan
+      - queue:work
+      - --sleep=3
+      - --tries=3
     restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      LOG_CHANNEL: ${LOG_CHANNEL:-stderr}
     volumes:
       - ./database/database.sqlite:/var/www/html/database/database.sqlite
       - app_storage:/var/www/html/storage
@@ -27,10 +44,16 @@ services:
       - app
 
   schedule:
-    image: laravel-vue-app
-    command: ["php", "artisan", "schedule:work"]
-    env_file: .env
+    image: biblioteca-key:local
+    command:
+      - php
+      - artisan
+      - schedule:work
     restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      LOG_CHANNEL: ${LOG_CHANNEL:-stderr}
     volumes:
       - ./database/database.sqlite:/var/www/html/database/database.sqlite
       - app_storage:/var/www/html/storage
