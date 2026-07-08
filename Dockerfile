@@ -68,8 +68,9 @@ COPY --chown=www-data:www-data . .
 RUN npm run build \
     && composer dump-autoload --optimize --no-scripts \
     && php artisan package:discover --ansi \
-    && mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache database \
+    && mkdir -p storage/app/public storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache database \
     && touch database/database.sqlite \
+    && php artisan storage:link \
     && chown -R www-data:www-data storage bootstrap/cache database \
     && chmod -R ug+rwX storage bootstrap/cache database \
     && rm -rf node_modules

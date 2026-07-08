@@ -3,5 +3,6 @@
 node_modules/
 vendor/
 storage/*.key
+public/storage
 .env
 docker-compose.yml
