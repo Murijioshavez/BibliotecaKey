@@ -1,5 +1,9 @@
 <?php
 
+$databaseTable = static fn (string $table): string => env('DB_CONNECTION') === 'sqlsrv' && env('DB_SCHEMA')
+    ? env('DB_SCHEMA').'.'.$table
+    : $table;
+
 return [
 
     /*
@@ -37,7 +41,7 @@ return [
         'database' => [
             'driver' => 'database',
             'connection' => env('DB_QUEUE_CONNECTION'),
-            'table' => env('DB_QUEUE_TABLE', 'jobs'),
+            'table' => env('DB_QUEUE_TABLE', $databaseTable('jobs')),
             'queue' => env('DB_QUEUE', 'default'),
             'retry_after' => (int) env('DB_QUEUE_RETRY_AFTER', 90),
             'after_commit' => false,
@@ -87,7 +91,7 @@ return [
 
     'batching' => [
         'database' => env('DB_CONNECTION', 'sqlite'),
-        'table' => 'job_batches',
+        'table' => $databaseTable('job_batches'),
     ],
 
     /*
@@ -106,7 +110,7 @@ return [
     'failed' => [
         'driver' => env('QUEUE_FAILED_DRIVER', 'database-uuids'),
         'database' => env('DB_CONNECTION', 'sqlite'),
-        'table' => 'failed_jobs',
+        'table' => $databaseTable('failed_jobs'),
     ],
 
 ];

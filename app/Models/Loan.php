@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\UsesSqlServerSchemaTable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Loan extends Model
 {
-    use HasFactory;
+    use HasFactory, UsesSqlServerSchemaTable;
     protected $fillable = [
         'user_id',
         'book_id',

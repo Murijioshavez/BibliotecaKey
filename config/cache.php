@@ -2,6 +2,10 @@
 
 use Illuminate\Support\Str;
 
+$databaseTable = static fn (string $table): string => env('DB_CONNECTION') === 'sqlsrv' && env('DB_SCHEMA')
+    ? env('DB_SCHEMA').'.'.$table
+    : $table;
+
 return [
 
     /*
@@ -41,9 +45,9 @@ return [
         'database' => [
             'driver' => 'database',
             'connection' => env('DB_CACHE_CONNECTION'),
-            'table' => env('DB_CACHE_TABLE', 'cache'),
+            'table' => env('DB_CACHE_TABLE', $databaseTable('cache')),
             'lock_connection' => env('DB_CACHE_LOCK_CONNECTION'),
-            'lock_table' => env('DB_CACHE_LOCK_TABLE'),
+            'lock_table' => env('DB_CACHE_LOCK_TABLE', $databaseTable('cache_locks')),
         ],
 
         'file' => [

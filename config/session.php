@@ -2,6 +2,10 @@
 
 use Illuminate\Support\Str;
 
+$databaseTable = static fn (string $table): string => env('DB_CONNECTION') === 'sqlsrv' && env('DB_SCHEMA')
+    ? env('DB_SCHEMA').'.'.$table
+    : $table;
+
 return [
 
     /*
@@ -86,7 +90,7 @@ return [
     |
     */
 
-    'table' => env('SESSION_TABLE', 'sessions'),
+    'table' => env('SESSION_TABLE', $databaseTable('sessions')),
 
     /*
     |--------------------------------------------------------------------------
