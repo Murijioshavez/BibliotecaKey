@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use App\Models\Loan;
+use App\Support\DatabaseTable;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class AdminBookController extends Controller
 {
@@ -24,12 +26,14 @@ class AdminBookController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'author' => 'required|string|max:255',
-            'isbn' => 'required|string|max:20|unique:books,isbn',
+            'isbn' => ['required', 'string', 'max:20', Rule::unique(DatabaseTable::validationName('books'), 'isbn')],
             'available_copies' => 'required|integer|min:0',
             'category' => 'required|string|max:100',
             'description' => 'nullable|string',
             'cover' => 'required|image|max:2048', // max 2MB
         ]);
+
+        unset($validated['cover']);
 
         // Subir imagen
         if ($request->hasFile('cover')) {
@@ -54,12 +58,14 @@ public function updateBook(Request $request, Book $book): RedirectResponse
     $validated = $request->validate([
         'title' => 'required|string|max:255',
         'author' => 'required|string|max:255',
-        'isbn' => 'required|string|max:20|unique:books,isbn,' . $book->id,
+        'isbn' => ['required', 'string', 'max:20', Rule::unique(DatabaseTable::validationName('books'), 'isbn')->ignore($book)],
         'available_copies' => 'required|integer|min:0',
         'category' => 'required|string|max:100',
         'description' => 'nullable|string',
         'cover' => 'nullable|image|max:2048',
     ]);
+
+    unset($validated['cover']);
 
     // Si hay nueva portada
     if ($request->hasFile('cover')) {
