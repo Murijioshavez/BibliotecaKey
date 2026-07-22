@@ -97,6 +97,8 @@ public function returnsView()
 {
     // Cargar solo préstamos aprobados y no devueltos con paginación de 10 en 10
     $loans = Loan::with('book', 'user')
+        ->whereHas('book')
+        ->whereHas('user')
         ->whereIn('status', ['prestado', 'vencido'])
         ->whereNull('returned_at')
         ->orderBy('fecha_prestamo', 'desc')

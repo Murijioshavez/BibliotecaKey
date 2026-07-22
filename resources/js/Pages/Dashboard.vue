@@ -58,7 +58,7 @@ console.log(props)
                                 <tr v-for="loan in props.historial" :key="loan.id"
                                     class="bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors dark:text-white">
                                     <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 truncate max-w-xs">
-                                        {{ loan.book.title }}
+                                        {{ loan.book?.title ?? 'Libro no encontrado' }}
                                     </td>
                                     <td class="border border-gray-300 dark:border-gray-700 px-4 py-3 capitalize">
                                         {{ loan.status }}
@@ -140,10 +140,10 @@ console.log(props)
       <!-- Aquí ponés tu v-for -->
       <tr v-for="Loan in $page.props.latestLoans" :key="Loan.id" class="odd:bg-white dark:text-white even:bg-gray-50 dark:odd:bg-gray-800 dark:even:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
         <td class="border-b border-gray-300 dark:border-gray-600 p-3 truncate max-w-xs">
-          {{ Loan.book.title }}
+          {{ Loan.book?.title ?? 'Libro no encontrado' }}
         </td>
         <td class="border-b border-gray-300 dark:border-gray-600 p-3 truncate max-w-xs">
-          {{ Loan.user.name }}
+          {{ Loan.user?.name ?? 'Usuario no encontrado' }}
         </td>
         <td class="border-b border-gray-300 dark:border-gray-600 p-3 whitespace-nowrap">
           {{ Loan.fecha_reserva ?? 'N/A' }}

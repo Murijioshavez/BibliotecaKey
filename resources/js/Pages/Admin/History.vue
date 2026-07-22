@@ -61,8 +61,8 @@ function goToPage(url) {
               class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-800 dark:even:bg-gray-700
                      dark:text-white hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors"
             >
-              <td class="p-3 border-b border-gray-300 dark:border-gray-600">{{ loan.book.title }}</td>
-              <td class="p-3 border-b border-gray-300 dark:border-gray-600">{{ loan.user.name }}</td>
+              <td class="p-3 border-b border-gray-300 dark:border-gray-600">{{ loan.book?.title ?? 'Libro no encontrado' }}</td>
+              <td class="p-3 border-b border-gray-300 dark:border-gray-600">{{ loan.user?.name ?? 'Usuario no encontrado' }}</td>
               <td class="p-3 border-b border-gray-300 dark:border-gray-600 capitalize">{{ loan.status }}</td>
               <td class="p-3 border-b border-gray-300 dark:border-gray-600">{{ loan.fecha_prestamo ?? 'N/A' }}</td>
               <td class="p-3 border-b border-gray-300 dark:border-gray-600">{{ loan.fecha_vencimiento ?? 'N/A' }}</td>

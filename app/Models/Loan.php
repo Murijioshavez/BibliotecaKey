@@ -24,10 +24,14 @@ class Loan extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withDefault([
+            'name' => 'Usuario no encontrado',
+        ]);
     }
     public function book()
     {
-        return $this->belongsTo(Book::class);
+        return $this->belongsTo(Book::class)->withDefault([
+            'title' => 'Libro no encontrado',
+        ]);
     }
 }

@@ -5,7 +5,7 @@ import { router, usePage } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
 
 const props = usePage().props;
-const loans = ref(props.loans || []);
+const loans = ref(props.loans || { data: [], links: [] });
 
 function goToPage(url) {
   if (!url) return;
@@ -26,7 +26,7 @@ function markReturned(loanId) {
       router.put(route('admin.returns.mark', loanId), {}, {
         onSuccess: () => {
           Swal.fire('¡Hecho!', 'El préstamo fue marcado como devuelto.', 'success');
-          loans.value = loans.value.filter(l => l.id !== loanId);
+          loans.value.data = loans.value.data.filter(l => l.id !== loanId);
         },
         onError: () => {
           Swal.fire('Error', 'No se pudo marcar el préstamo como devuelto.', 'error');
@@ -83,10 +83,10 @@ function markReturned(loanId) {
               title="Marcar préstamo como devuelto"
             >
               <td class="border-b border-gray-300 dark:border-gray-600 p-3 truncate max-w-xs">
-                {{ loan.book.title }}
+                {{ loan.book?.title ?? 'Libro no encontrado' }}
               </td>
               <td class="border-b border-gray-300 dark:border-gray-600 p-3 truncate max-w-xs">
-                {{ loan.user.name }}
+                {{ loan.user?.name ?? 'Usuario no encontrado' }}
               </td>
               <td class="border-b border-gray-300 dark:border-gray-600 p-3 capitalize font-medium text-gray-800 dark:text-gray-300">
                 {{ loan.status }}
