@@ -28,6 +28,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libfreetype6-dev \
         libicu-dev \
         libjpeg62-turbo-dev \
+        libxml2-dev \
         libonig-dev \
         libpng-dev \
         libpq-dev \
