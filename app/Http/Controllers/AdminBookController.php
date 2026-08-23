@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\LoansExport;
 use App\Models\Book;
 use App\Models\Loan;
 use App\Support\DatabaseTable;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdminBookController extends Controller
 {
@@ -142,12 +144,7 @@ public function history(Request $request)
 {
     $search = $request->input('search');
 
-    $loans = Loan::with('book', 'user')
-        ->when($search, function ($query, $search) {
-            $query->whereHas('user', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
-            });
-        })
+    $loans = $this->historyQuery($search)
         ->orderBy('created_at', 'desc')
         ->paginate(15)
         ->withQueryString(); // Mantiene el search en la paginación
@@ -158,6 +155,27 @@ public function history(Request $request)
             'search' => $search,
         ],
     ]);
+}
+
+public function exportHistory(Request $request)
+{
+    $search = $request->input('search');
+
+    return Excel::download(
+        new LoansExport($this->historyQuery($search)->orderBy('created_at', 'desc')),
+        'historial-prestamos-'.now()->format('Y-m-d_His').'.xlsx',
+    );
+}
+
+private function historyQuery(?string $search)
+{
+    return Loan::query()
+        ->with('book', 'user')
+        ->when($search, function ($query, $search) {
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        });
 }
 
 }

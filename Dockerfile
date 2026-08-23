@@ -52,6 +52,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         pdo_mysql \
         pdo_pgsql \
         pdo_sqlite \
+        dom \
+        xml \
+        xmlreader \
+        xmlwriter \
         zip \
     && pecl install redis sqlsrv pdo_sqlsrv \
     && docker-php-ext-enable redis sqlsrv pdo_sqlsrv \

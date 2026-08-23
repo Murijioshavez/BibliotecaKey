@@ -59,7 +59,8 @@ Route::middleware(['admin'])->group(function () {
     Route::put('/admin/returns/{loan}/return', [AdminBookController::class, 'markAsReturned'])->name('admin.returns.mark');
 
     //Ruta para ver el historial de todos los prestamos
-     Route::get('/admin/loans/history', [AdminBookController::class, 'history'])->name('admin.loans.history');
+    Route::get('/admin/loans/history/export', [AdminBookController::class, 'exportHistory'])->name('admin.loans.history.export');
+    Route::get('/admin/loans/history', [AdminBookController::class, 'history'])->name('admin.loans.history');
 
 });
 

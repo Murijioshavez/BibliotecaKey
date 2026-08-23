@@ -1,10 +1,15 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { usePage } from '@inertiajs/vue3'
 
 const props = usePage().props
-const search = ref(props.search || '') // Mantener búsqueda actual si existe
+const search = ref(props.filters?.search || '') // Mantener búsqueda actual si existe
+
+const exportUrl = computed(() => {
+  const query = search.value.trim()
+  return `/admin/loans/history/export${query ? `?search=${encodeURIComponent(query)}` : ''}`
+})
 
 function submitSearch(event) {
   if (event.key === 'Enter') {
@@ -26,15 +31,22 @@ function goToPage(url) {
         Historial de Préstamos
       </h1>
 
-      <!-- Searchbar -->
-      <input
-        v-model="search"
-        @keyup="submitSearch"
-        type="text"
-        placeholder="Buscar por nombre de usuario y presiona Enter"
-        class="mb-6 w-full p-2 rounded-md border border-gray-300 dark:border-gray-600
-               dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-      />
+      <div class="mb-6 flex flex-col gap-3 sm:flex-row">
+        <input
+          v-model="search"
+          @keyup="submitSearch"
+          type="text"
+          placeholder="Buscar por nombre de usuario y presiona Enter"
+          class="w-full p-2 rounded-md border border-gray-300 dark:border-gray-600
+                 dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+        />
+        <a
+          :href="exportUrl"
+          class="shrink-0 rounded-md bg-green-600 px-4 py-2 text-center font-semibold text-white transition hover:bg-green-700"
+        >
+          Exportar a Excel
+        </a>
+      </div>
 
       <!-- Tabla -->
       <div class="overflow-x-auto rounded-md border border-gray-300 dark:border-gray-700">
