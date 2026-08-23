@@ -67,6 +67,7 @@ COPY --chown=www-data:www-data . .
 
 RUN npm run build \
     && composer dump-autoload --optimize --no-scripts \
+    && rm -f bootstrap/cache/packages.php bootstrap/cache/services.php \
     && php artisan package:discover --ansi \
     && mkdir -p storage/app/public storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache database \
     && touch database/database.sqlite \
