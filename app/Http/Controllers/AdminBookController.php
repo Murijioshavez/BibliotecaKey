@@ -11,6 +11,7 @@ use Inertia\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class AdminBookController extends Controller
@@ -109,14 +110,33 @@ public function returnsView()
     ]);
 }
 
-public function markAsReturned(Loan $loan)
+public function markAsReturned(Loan $loan): RedirectResponse
 {
-    $loan->update([
-        'status' => 'devuelto',
-        'returned_at' => now()
-    ]);
+    $returned = DB::transaction(function () use ($loan): bool {
+        $loan = Loan::query()->lockForUpdate()->findOrFail($loan->id);
 
-    return redirect()->route('admin.returns')->with('success', 'Préstamo marcado como devuelto.');
+        // Evita devoluciones duplicadas o cambios de estado inválidos.
+        if ($loan->returned_at || ! in_array($loan->status, ['prestado', 'vencido'], true)) {
+            return false;
+        }
+
+        $book = Book::query()->lockForUpdate()->findOrFail($loan->book_id);
+
+        $loan->update([
+            'status' => 'devuelto',
+            'returned_at' => now(),
+        ]);
+
+        $book->increment('available_copies');
+
+        return true;
+    });
+
+    if (! $returned) {
+        return redirect()->route('admin.returns')->with('error', 'El préstamo ya fue devuelto o no puede marcarse como devuelto.');
+    }
+
+    return redirect()->route('admin.returns')->with('success', 'Préstamo marcado como devuelto y copia restituida al catálogo.');
 }
 public function history(Request $request)
 {
