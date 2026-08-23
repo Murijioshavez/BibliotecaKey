@@ -5,11 +5,9 @@ import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 
 const showingNavigationDropdown = ref(false);
-const props = usePage();
-console.log(props);
 </script>
 
 <template>
@@ -157,6 +155,21 @@ console.log(props);
               :href="route('admin.loans')"
               :active="route().current('admin.loans')"
               >Reservas</ResponsiveNavLink
+            >
+            <ResponsiveNavLink
+              :href="route('books.admin.create')"
+              :active="route().current('books.admin.create')"
+              >Nuevo libro</ResponsiveNavLink
+            >
+            <ResponsiveNavLink
+              :href="route('admin.returns')"
+              :active="route().current('admin.returns')"
+              >Devoluciones</ResponsiveNavLink
+            >
+            <ResponsiveNavLink
+              :href="route('admin.loans.history')"
+              :active="route().current('admin.loans.history')"
+              >Historial</ResponsiveNavLink
             >
           </div>
           <div v-else class="space-y-1 pb-3 pt-2">
