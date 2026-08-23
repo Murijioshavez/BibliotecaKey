@@ -3,12 +3,11 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Loan;
 
-class LoanApprovedMail extends Mailable implements ShouldQueue
+class LoanApprovedMail extends Mailable
 {
     use Queueable, SerializesModels;
 

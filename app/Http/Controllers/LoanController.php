@@ -54,9 +54,11 @@ public function approve(Loan $loan)
         'fecha_vencimiento' => now()->addDays(7),
     ]);
 
-    // Pasar solo el ID al mail para evitar serialización de relaciones
+    // Este correo debe salir al aprobar el préstamo. En Heroku no hay un
+    // worker de cola configurado para este proceso, por lo que encolarlo lo
+    // deja pendiente indefinidamente.
     Mail::to($loan->user->email)
-        ->queue(new LoanApprovedMail($loan->id));
+        ->send(new LoanApprovedMail($loan->id));
 
     return redirect()->back()->with('success', 'El prestamo fue aprobado');
 }
